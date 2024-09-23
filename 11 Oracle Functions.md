@@ -1,87 +1,89 @@
+SQL
+-- Mathematical Functions
+-- ABS: Returns the absolute value of a number.
+SELECT ABS(-10) FROM DUAL; -- Output: 10
 
--- 1. LOWER
--- Converts all characters of a string to lowercase.
-SELECT LOWER('Edukron Data Science') FROM dual;
--- Output: edukron data science
+-- CEIL: Rounds a number up to the nearest integer.
+SELECT CEIL(3.14) FROM DUAL; -- Output: 4
 
--- 2. UPPER
--- Converts all characters of a string to uppercase.
-SELECT UPPER('Edukron Data Engineering') FROM dual;
--- Output: EDUKRON DATA ENGINEERING
+-- FLOOR: Rounds a number down to the nearest integer.
+SELECT FLOOR(3.14) FROM DUAL; -- Output: 3
 
--- 3. INITCAP
--- Converts the first character of each word to uppercase.
-SELECT INITCAP('edukron data science') FROM dual;
--- Output: Edukron Data Science
+-- MOD: Returns the remainder of division.
+SELECT MOD(10, 3) FROM DUAL; -- Output: 1
 
--- 4. CONCAT
--- Concatenates two strings.
-SELECT CONCAT('Edukron', ' Data Science') FROM dual;
--- Output: Edukron Data Science
+-- POWER: Raises a number to a power.
+SELECT POWER(2, 3) FROM DUAL; -- Output: 8
 
--- 5. SUBSTR
--- Extracts a substring from a string.
-SELECT SUBSTR('Edukron Data Engineering', 9, 4) FROM dual;
--- Output: Data
--- This extracts 4 characters starting from the 9th position.
+-- SQRT: Calculates the square root of a number.
+SELECT SQRT(16) FROM DUAL; -- Output: 4
 
--- 6. LENGTH
--- Returns the length of a string.
-SELECT LENGTH('Edukron Data Science') FROM dual;
--- Output: 21
+-- EXP: Calculates the exponential of a number (e raised to the power of x).
+SELECT EXP(2) FROM DUAL; -- Output: 7.38905609893065
 
--- 7. INSTR
--- Returns the position of a substring within a string.
-SELECT INSTR('Edukron Data Engineering', 'Engineering') FROM dual;
--- Output: 12
+-- LOG: Calculates the logarithm of a number to a base.
+SELECT LOG(10, 100) FROM DUAL; -- Output: 2
 
--- 8. REPLACE
--- Replaces occurrences of a substring within a string.
-SELECT REPLACE('Edukron Data Science', 'Science', 'Engineering') FROM dual;
--- Output: Edukron Data Engineering
+-- LN: Calculates the natural logarithm of a number (logarithm to base e).
+SELECT LN(1) FROM DUAL; -- Output: 0
 
--- 9. TRIM
--- Removes leading and trailing spaces from a string.
-SELECT TRIM('  Edukron Data Science  ') FROM dual;
--- Output: Edukron Data Science
+-- GREATEST: Returns the largest value from a list of values.
+SELECT GREATEST(10, 20, 4) FROM DUAL; -- Output: 20
 
--- 10. LTRIM
--- Removes leading spaces from a string.
-SELECT LTRIM('   Edukron Data Science') FROM dual;
--- Output: Edukron Data Science
+-- LEAST: Returns the smallest value from a list of values.
+SELECT LEAST(10, 20, 5) FROM DUAL; -- Output: 5
 
--- 11. RTRIM
--- Removes trailing spaces from a string.
-SELECT RTRIM('Edukron Data Engineering   ') FROM dual;
--- Output: Edukron Data Engineering
+-- SIGN: Returns -1 if the number is negative, 1 if positive, and 0 if zero.
+SELECT SIGN(-10) FROM DUAL; -- Output: -1
 
--- 12. LPAD
--- Pads the left side of a string with a specified character.
-SELECT LPAD('Data Science', 15, '0') FROM dual;
--- Output: 000Data Science
+-- SIN, COS, TAN: Calculate trigonometric functions (sine, cosine, tangent).
+SELECT SIN(30), COS(60), TAN(45) FROM DUAL;
 
--- 13. RPAD
--- Pads the right side of a string with a specified character.
-SELECT RPAD('Edukron', 10, '*') FROM dual;
--- Output: Edukron***
+-- PI: Returns the value of pi.
+SELECT PI() FROM DUAL;
 
--- 14. ASCII
--- Returns the ASCII value of the first character of a string.
-SELECT ASCII('Edukron') FROM dual;
--- Output: 69
--- (ASCII value of 'E')
+-- Character-based Functions
+-- LOWER: Converts a string to lowercase.
+SELECT LOWER('Hello, World!') FROM DUAL; -- Output: hello, world!
 
--- 15. CHR
--- Returns the character corresponding to an ASCII value.
-SELECT CHR(69) FROM dual;
--- Output: E
+-- UPPER: Converts a string to uppercase.
+SELECT UPPER('Hello, World!') FROM DUAL; -- Output: HELLO, WORLD!
 
--- 16. TRANSLATE
--- Replaces a sequence of characters in a string.
-SELECT TRANSLATE('Edukron Data Science', 'Data', 'Info') FROM dual;
--- Output: Edukron Info Science
+-- INITCAP: Capitalizes the first letter of each word.
+SELECT INITCAP('hello world') FROM DUAL; -- Output: Hello World
 
--- 17. REVERSE
--- Reverses a string.
-SELECT REVERSE('Edukron') FROM dual;
--- Output: norkudE
+-- CONCAT: Concatenates two or more strings.
+SELECT CONCAT('Hello', ' ', 'World') FROM DUAL; -- Output: Hello World
+
+-- SUBSTR: Extracts a substring from a string.
+SELECT SUBSTR('Hello, World!', 7, 5) FROM DUAL; -- Output: World
+
+-- LENGTH: Returns the length of a string.
+SELECT LENGTH('Hello, World!') FROM DUAL; -- Output: 13
+
+-- INSTR: Finds the position of a substring within a string.
+SELECT INSTR('Hello, World!', 'World') FROM DUAL; -- Output: 7
+
+-- REPLACE: Replaces occurrences of a substring with another.
+SELECT REPLACE('Hello, World!', 'World', 'Universe') FROM DUAL; -- Output: Hello, Universe!
+
+-- TRIM: Removes leading and trailing whitespace from a string.
+SELECT TRIM('  Hello, World!  ') FROM DUAL; -- Output: Hello, World!
+
+-- LTRIM: Removes leading whitespace from a string.
+SELECT LTRIM('  Hello, World!') FROM DUAL; -- Output: Hello, World!
+
+-- RTRIM: Removes trailing whitespace from a string.
+SELECT RTRIM('Hello, World!  ') FROM DUAL; -- Output: Hello, World!
+
+-- LPAD: Pads a string with characters on the left.
+SELECT LPAD('Hello', 10, '*') FROM DUAL; -- Output: *****Hello
+
+-- RPAD: Pads a string with characters on the right.
+SELECT RPAD('Hello', 10, '*') FROM DUAL; -- Output: Hello*****
+
+-- ASCII: Returns the ASCII value of a character.
+SELECT ASCII('A') FROM DUAL; -- Output: 65
+
+-- CHR: Returns the character corresponding to an ASCII value.
+SELECT CHR(65) FROM DUAL; -- Output: A
