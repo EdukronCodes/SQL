@@ -215,3 +215,173 @@ SELECT d.department_name
 FROM hr.departments d
 LEFT JOIN hr.employees e ON d.department_id = e.department_id
 WHERE e.employee_id IS NULL;
+
+-- 1. Select all columns from employees table
+SELECT * FROM hr.employees;
+
+-- 2. Select employee's first and last names
+SELECT first_name, last_name FROM hr.employees;
+
+-- 3. Select distinct job titles from employees
+SELECT DISTINCT job_title FROM hr.employees;
+
+-- 4. Select employees with salary greater than 50000
+SELECT * FROM hr.employees WHERE salary > 50000;
+
+-- 5. Select employees hired after January 1, 2020
+SELECT * FROM hr.employees WHERE hire_date > '2020-01-01';
+
+-- 6. Select employees in department ID 10
+SELECT * FROM hr.employees WHERE department_id = 10;
+
+-- 7. Select employees with the first name starting with 'A'
+SELECT * FROM hr.employees WHERE first_name LIKE 'A%';
+
+-- 8. Select employee details ordered by hire date
+SELECT * FROM hr.employees ORDER BY hire_date;
+
+-- 9. Select the top 5 highest paid employees
+SELECT * FROM hr.employees ORDER BY salary DESC LIMIT 5;
+
+-- 10. Select employees with salary between 40000 and 60000
+SELECT * FROM hr.employees WHERE salary BETWEEN 40000 AND 60000;
+
+-- 11. Count the number of employees
+SELECT COUNT(*) FROM hr.employees;
+
+-- 12. Count the number of employees in department 20
+SELECT COUNT(*) FROM hr.employees WHERE department_id = 20;
+
+-- 13. Find the minimum salary in the employees table
+SELECT MIN(salary) FROM hr.employees;
+
+-- 14. Find the maximum salary in the employees table
+SELECT MAX(salary) FROM hr.employees;
+
+-- 15. Find the average salary of employees
+SELECT AVG(salary) FROM hr.employees;
+
+-- 16. Sum the total salaries of all employees
+SELECT SUM(salary) FROM hr.employees;
+
+-- 17. Count employees grouped by department_id
+SELECT department_id, COUNT(*) FROM hr.employees GROUP BY department_id;
+
+-- 18. Find the average salary per department
+SELECT department_id, AVG(salary) FROM hr.employees GROUP BY department_id;
+
+-- 19. Count employees with salary greater than 60000
+SELECT COUNT(*) FROM hr.employees WHERE salary > 60000;
+
+-- 20. Find the total salary by department
+SELECT department_id, SUM(salary) FROM hr.employees GROUP BY department_id;
+
+-- String Functions
+
+-- 21. Convert the first name to uppercase
+SELECT UPPER(first_name) FROM hr.employees;
+
+-- 22. Convert the last name to lowercase
+SELECT LOWER(last_name) FROM hr.employees;
+
+-- 23. Concatenate first and last names
+SELECT CONCAT(first_name, ' ', last_name) AS full_name FROM hr.employees;
+
+-- 24. Find the length of first name
+SELECT LENGTH(first_name) FROM hr.employees;
+
+-- 25. Trim spaces from the first name
+SELECT TRIM(first_name) FROM hr.employees;
+
+-- 26. Find the first three characters of the last name
+SELECT SUBSTRING(last_name, 1, 3) FROM hr.employees;
+
+-- 27. Replace all instances of 'a' with 'A' in first names
+SELECT REPLACE(first_name, 'a', 'A') FROM hr.employees;
+
+-- 28. Locate the position of 'a' in the first name
+SELECT POSITION('a' IN first_name) FROM hr.employees;
+
+-- 29. Repeat the first name three times
+SELECT REPEAT(first_name, 3) FROM hr.employees;
+
+-- 30. Reverse the last name
+SELECT REVERSE(last_name) FROM hr.employees;
+
+-- Date Functions
+
+-- 31. Get the current date
+SELECT CURRENT_DATE;
+
+-- 32. Get the current timestamp
+SELECT CURRENT_TIMESTAMP;
+
+-- 33. Extract the year from hire_date
+SELECT EXTRACT(YEAR FROM hire_date) FROM hr.employees;
+
+-- 34. Extract the month from hire_date
+SELECT EXTRACT(MONTH FROM hire_date) FROM hr.employees;
+
+-- 35. Extract the day from hire_date
+SELECT EXTRACT(DAY FROM hire_date) FROM hr.employees;
+
+-- 36. Add 1 year to hire_date
+SELECT hire_date, hire_date + INTERVAL '1 year' FROM hr.employees;
+
+-- 37. Subtract 6 months from hire_date
+SELECT hire_date, hire_date - INTERVAL '6 months' FROM hr.employees;
+
+-- 38. Find the difference in days between hire_date and current date
+SELECT hire_date, CURRENT_DATE - hire_date AS days_in_company FROM hr.employees;
+
+-- 39. Format the hire_date as 'YYYY-MM-DD'
+SELECT TO_CHAR(hire_date, 'YYYY-MM-DD') FROM hr.employees;
+
+-- 40. Find employees hired in the last 30 days
+SELECT * FROM hr.employees WHERE hire_date >= (CURRENT_DATE - INTERVAL '30 days');
+
+-- Conditional Functions
+
+-- 41. Select employees with 'Manager' in the job title and mark them as 'Senior' or 'Junior'
+SELECT first_name, last_name, 
+    CASE 
+        WHEN job_title LIKE '%Manager%' THEN 'Senior'
+        ELSE 'Junior'
+    END AS employee_level
+FROM hr.employees;
+
+-- 42. Use COALESCE to display 'No Commission' if commission_pct is NULL
+SELECT first_name, last_name, COALESCE(commission_pct, 'No Commission') FROM hr.employees;
+
+-- 43. Use NULLIF to return NULL when salary equals 50000
+SELECT first_name, last_name, NULLIF(salary, 50000) FROM hr.employees;
+
+-- 44. Use GREATEST to find the highest value among salary and commission
+SELECT first_name, last_name, GREATEST(salary, commission_pct) FROM hr.employees;
+
+-- 45. Use LEAST to find the lowest salary in a list
+SELECT LEAST(50000, 60000, salary) FROM hr.employees;
+
+-- Window Functions
+
+-- 46. Rank employees by salary
+SELECT first_name, last_name, salary, RANK() OVER (ORDER BY salary DESC) AS salary_rank FROM hr.employees;
+
+-- 47. Find the cumulative salary sum
+SELECT first_name, last_name, salary, SUM(salary) OVER (ORDER BY hire_date) AS cumulative_salary FROM hr.employees;
+
+-- 48. Find the average salary partitioned by department
+SELECT first_name, last_name, salary, AVG(salary) OVER (PARTITION BY department_id) AS avg_salary_per_dept FROM hr.employees;
+
+-- 49. Use LAG to get the previous employee's salary
+SELECT first_name, last_name, salary, LAG(salary) OVER (ORDER BY hire_date) AS previous_salary FROM hr.employees;
+
+-- 50. Use LEAD to get the next employee's salary
+SELECT first_name, last_name, salary, LEAD(salary) OVER (ORDER BY hire_date) AS next_salary FROM hr.employees;
+
+-- Joins
+
+
+
+
+
