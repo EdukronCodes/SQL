@@ -1,1 +1,15 @@
 
+# Comparison of Procedures vs. Functions
+
+| Feature               | Function                                    | Procedure                                     |
+|-----------------------|---------------------------------------------|-----------------------------------------------|
+| **Definition**         | A subprogram that performs a task and **must return a single value**. Can be used in SQL queries, expressions, and assignments. | A subprogram that performs a task and **may or may not return values**. Generally used for executing actions or operations. |
+| **Return Value**       | Must return a single value using the `RETURN` statement. | May or may not return values. Typically used for actions that don't require a return. |
+| **Usage in SQL**       | Can be called and used within SQL statements (e.g., `SELECT`, `WHERE`). | Cannot be called directly from SQL statements. |
+| **Invocation**         | Can be invoked from a PL/SQL block, SQL statement, or another function. | Can be invoked from a PL/SQL block or another procedure. |
+| **Return Type**        | Must specify a return type (e.g., `NUMBER`, `VARCHAR2`, etc.). | No return type is needed, but can return multiple values using `OUT` parameters. |
+| **Purpose**            | Used mainly for computations and returning a result. | Used mainly for executing actions (e.g., updating data, performing operations). |
+| **Parameter Modes**    | Supports `IN` parameters. | Supports `IN`, `OUT`, and `IN OUT` parameters. |
+| **Execution in PL/SQL**| Called from within expressions and used as part of SQL. | Executed as standalone statements or part of PL/SQL blocks. |
+| **Transactions**       | Cannot directly handle transactions like `COMMIT`, `ROLLBACK`. | Can handle transactions like `COMMIT`, `ROLLBACK`. |
+| **Performance**        | Generally used for computations that return a value, might be slightly slower if used in complex SQL queries. | May be faster for executing a series of actions, especially when no return value is needed. |
