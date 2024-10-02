@@ -1,0 +1,190 @@
+-- 1. Handle NULL values (if a value is NULL, return a default value)
+CREATE OR REPLACE FUNCTION handle_null_value(p_input VARCHAR2, p_default VARCHAR2)
+RETURN VARCHAR2 IS
+BEGIN
+  RETURN NVL(p_input, p_default);
+END;
+/
+
+-- 2. Calculate percentage (given two numbers, return the percentage)
+CREATE OR REPLACE FUNCTION calculate_percentage(p_part NUMBER, p_total NUMBER)
+RETURN NUMBER IS
+BEGIN
+  IF p_total = 0 THEN
+    RETURN 0;
+  ELSE
+    RETURN (p_part / p_total) * 100;
+  END IF;
+END;
+/
+
+-- 3. Convert Date to String
+CREATE OR REPLACE FUNCTION date_to_string(p_date DATE, p_format VARCHAR2)
+RETURN VARCHAR2 IS
+BEGIN
+  RETURN TO_CHAR(p_date, p_format);
+END;
+/
+
+-- 4. Convert String to Date
+CREATE OR REPLACE FUNCTION string_to_date(p_str VARCHAR2, p_format VARCHAR2)
+RETURN DATE IS
+BEGIN
+  RETURN TO_DATE(p_str, p_format);
+END;
+/
+
+-- 5. Get the difference in days between two dates
+CREATE OR REPLACE FUNCTION date_difference(p_start_date DATE, p_end_date DATE)
+RETURN NUMBER IS
+BEGIN
+  RETURN p_end_date - p_start_date;
+END;
+/
+
+-- 6. Calculate the age of a person based on birthdate
+CREATE OR REPLACE FUNCTION calculate_age(p_birthdate DATE)
+RETURN NUMBER IS
+BEGIN
+  RETURN TRUNC(MONTHS_BETWEEN(SYSDATE, p_birthdate) / 12);
+END;
+/
+
+-- 7. Capitalize the first letter of a string
+CREATE OR REPLACE FUNCTION capitalize_first_letter(p_str VARCHAR2)
+RETURN VARCHAR2 IS
+BEGIN
+  RETURN INITCAP(p_str);
+END;
+/
+
+-- 8. Mask sensitive data (e.g., masking a credit card number)
+CREATE OR REPLACE FUNCTION mask_sensitive_data(p_input VARCHAR2, p_unmasked_length NUMBER)
+RETURN VARCHAR2 IS
+BEGIN
+  RETURN RPAD('X', LENGTH(p_input) - p_unmasked_length, 'X') || SUBSTR(p_input, -p_unmasked_length);
+END;
+/
+
+-- 9. Generate a unique identifier
+CREATE OR REPLACE FUNCTION generate_unique_id RETURN VARCHAR2 IS
+BEGIN
+  RETURN SYS_GUID();
+END;
+/
+
+-- 10. Find the maximum value in a column (in a given table)
+CREATE OR REPLACE FUNCTION get_max_value(p_table_name VARCHAR2, p_column_name VARCHAR2)
+RETURN NUMBER IS
+  l_max_value NUMBER;
+BEGIN
+  EXECUTE IMMEDIATE 'SELECT MAX(' || p_column_name || ') FROM ' || p_table_name INTO l_max_value;
+  RETURN l_max_value;
+END;
+/
+
+-- 11. Count rows in a table
+CREATE OR REPLACE FUNCTION count_rows(p_table_name VARCHAR2)
+RETURN NUMBER IS
+  l_count NUMBER;
+BEGIN
+  EXECUTE IMMEDIATE 'SELECT COUNT(*) FROM ' || p_table_name INTO l_count;
+  RETURN l_count;
+END;
+/
+
+-- 12. Check if a column has NULL values
+CREATE OR REPLACE FUNCTION check_null_values(p_table_name VARCHAR2, p_column_name VARCHAR2)
+RETURN VARCHAR2 IS
+  l_count NUMBER;
+BEGIN
+  EXECUTE IMMEDIATE 'SELECT COUNT(*) FROM ' || p_table_name || ' WHERE ' || p_column_name || ' IS NULL' INTO l_count;
+  IF l_count > 0 THEN
+    RETURN 'Yes';
+  ELSE
+    RETURN 'No';
+  END IF;
+END;
+/
+
+-- 13. Find duplicate values in a column
+CREATE OR REPLACE FUNCTION find_duplicates(p_table_name VARCHAR2, p_column_name VARCHAR2)
+RETURN NUMBER IS
+  l_count NUMBER;
+BEGIN
+  EXECUTE IMMEDIATE 'SELECT COUNT(*) FROM (SELECT ' || p_column_name || ', COUNT(*) FROM ' || p_table_name || 
+                    ' GROUP BY ' || p_column_name || ' HAVING COUNT(*) > 1)' INTO l_count;
+  RETURN l_count;
+END;
+/
+
+-- 14. Get the most common value (mode) in a column
+CREATE OR REPLACE FUNCTION get_most_common_value(p_table_name VARCHAR2, p_column_name VARCHAR2)
+RETURN VARCHAR2 IS
+  l_mode VARCHAR2(100);
+BEGIN
+  EXECUTE IMMEDIATE 'SELECT ' || p_column_name || ' FROM ' || p_table_name || ' GROUP BY ' || p_column_name || 
+                    ' ORDER BY COUNT(*) DESC FETCH FIRST 1 ROWS ONLY' INTO l_mode;
+  RETURN l_mode;
+END;
+/
+
+-- 15. Get the last day of the current month
+CREATE OR REPLACE FUNCTION get_last_day_of_month RETURN DATE IS
+BEGIN
+  RETURN LAST_DAY(SYSDATE);
+END;
+/
+
+-- 16. Check if a value exists in a table
+CREATE OR REPLACE FUNCTION check_value_exists(p_table_name VARCHAR2, p_column_name VARCHAR2, p_value VARCHAR2)
+RETURN VARCHAR2 IS
+  l_count NUMBER;
+BEGIN
+  EXECUTE IMMEDIATE 'SELECT COUNT(*) FROM ' || p_table_name || ' WHERE ' || p_column_name || ' = ''' || p_value || '''' INTO l_count;
+  IF l_count > 0 THEN
+    RETURN 'Yes';
+  ELSE
+    RETURN 'No';
+  END IF;
+END;
+/
+
+-- 17. Concatenate two columns in a table
+CREATE OR REPLACE FUNCTION concatenate_columns(p_table_name VARCHAR2, p_column1 VARCHAR2, p_column2 VARCHAR2)
+RETURN VARCHAR2 IS
+  l_concatenated_value VARCHAR2(4000);
+BEGIN
+  EXECUTE IMMEDIATE 'SELECT ' || p_column1 || ' || ' || p_column2 || ' FROM ' || p_table_name || ' WHERE ROWNUM = 1' INTO l_concatenated_value;
+  RETURN l_concatenated_value;
+END;
+/
+
+-- 18. Truncate a table
+CREATE OR REPLACE FUNCTION truncate_table(p_table_name VARCHAR2)
+RETURN VARCHAR2 IS
+BEGIN
+  EXECUTE IMMEDIATE 'TRUNCATE TABLE ' || p_table_name;
+  RETURN 'Table ' || p_table_name || ' truncated.';
+END;
+/
+
+-- 19. Get a random row from a table
+CREATE OR REPLACE FUNCTION get_random_row(p_table_name VARCHAR2)
+RETURN VARCHAR2 IS
+  l_random_value VARCHAR2(4000);
+BEGIN
+  EXECUTE IMMEDIATE 'SELECT * FROM (SELECT * FROM ' || p_table_name || ' ORDER BY DBMS_RANDOM.VALUE) WHERE ROWNUM = 1' INTO l_random_value;
+  RETURN l_random_value;
+END;
+/
+
+-- 20. Calculate average value of a column
+CREATE OR REPLACE FUNCTION calculate_avg_value(p_table_name VARCHAR2, p_column_name VARCHAR2)
+RETURN NUMBER IS
+  l_avg_value NUMBER;
+BEGIN
+  EXECUTE IMMEDIATE 'SELECT AVG(' || p_column_name || ') FROM ' || p_table_name INTO l_avg_value;
+  RETURN l_avg_value;
+END;
+/
