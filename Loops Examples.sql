@@ -201,6 +201,286 @@ BEGIN
 END;
 
 
+DECLARE
+  i NUMBER;
+BEGIN
+  -- Example 1: Exit after first iteration
+  FOR i IN 1..10 LOOP
+    DBMS_OUTPUT.PUT_LINE('i = ' || i);
+    EXIT;  -- Exit after first loop
+  END LOOP;
+
+  -- Example 2: Exit when i = 5
+  FOR i IN 1..10 LOOP
+    IF i = 5 THEN
+      EXIT;
+    END IF;
+    DBMS_OUTPUT.PUT_LINE('i = ' || i);
+  END LOOP;
+
+  -- Example 3: Continue if i is even
+  FOR i IN 1..5 LOOP
+    IF MOD(i, 2) = 0 THEN
+      CONTINUE;
+    END IF;
+    DBMS_OUTPUT.PUT_LINE('Odd: ' || i);
+  END LOOP;
+
+  -- Example 4: Print until i = 4
+  FOR i IN 1..10 LOOP
+    IF i = 4 THEN
+      EXIT;
+    END IF;
+    DBMS_OUTPUT.PUT_LINE('Counting: ' || i);
+  END LOOP;
+
+  -- Example 5: Skip number 3
+  FOR i IN 1..5 LOOP
+    IF i = 3 THEN
+      CONTINUE;
+    END IF;
+    DBMS_OUTPUT.PUT_LINE('i = ' || i);
+  END LOOP;
+
+  -- Example 6: Exit when multiple of 7 found
+  FOR i IN 1..20 LOOP
+    IF MOD(i, 7) = 0 THEN
+      DBMS_OUTPUT.PUT_LINE('Found multiple of 7: ' || i);
+      EXIT;
+    END IF;
+  END LOOP;
+
+  -- Example 7: Continue when divisible by 3
+  FOR i IN 1..10 LOOP
+    IF MOD(i, 3) = 0 THEN
+      CONTINUE;
+    END IF;
+    DBMS_OUTPUT.PUT_LINE('Not divisible by 3: ' || i);
+  END LOOP;
+
+  -- Example 8: Exit from WHILE loop
+  i := 1;
+  WHILE i <= 10 LOOP
+    IF i = 4 THEN
+      EXIT;
+    END IF;
+    DBMS_OUTPUT.PUT_LINE('i = ' || i);
+    i := i + 1;
+  END LOOP;
+
+  -- Example 9: Continue in WHILE loop
+  i := 0;
+  WHILE i < 5 LOOP
+    i := i + 1;
+    IF i = 2 THEN
+      CONTINUE;
+    END IF;
+    DBMS_OUTPUT.PUT_LINE('Value: ' || i);
+  END LOOP;
+
+  -- Example 10: Skip printing multiples of 4
+  FOR i IN 1..10 LOOP
+    IF MOD(i, 4) = 0 THEN
+      CONTINUE;
+    END IF;
+    DBMS_OUTPUT.PUT_LINE('i = ' || i);
+  END LOOP;
+
+  -- Example 11: Exit if i > 3 in WHILE loop
+  i := 0;
+  WHILE TRUE LOOP
+    i := i + 1;
+    IF i > 3 THEN
+      EXIT;
+    END IF;
+    DBMS_OUTPUT.PUT_LINE('i = ' || i);
+  END LOOP;
+
+  -- Example 12: Continue on even numbers in WHILE
+  i := 0;
+  WHILE i < 5 LOOP
+    i := i + 1;
+    IF MOD(i, 2) = 0 THEN
+      CONTINUE;
+    END IF;
+    DBMS_OUTPUT.PUT_LINE('Odd WHILE: ' || i);
+  END LOOP;
+
+  -- Example 13: Nested loop exit
+  FOR i IN 1..3 LOOP
+    FOR j IN 1..3 LOOP
+      IF j = 2 THEN
+        EXIT;
+      END IF;
+      DBMS_OUTPUT.PUT_LINE('i=' || i || ', j=' || j);
+    END LOOP;
+  END LOOP;
+
+  -- Example 14: Nested loop continue
+  FOR i IN 1..2 LOOP
+    FOR j IN 1..3 LOOP
+      IF j = 2 THEN
+        CONTINUE;
+      END IF;
+      DBMS_OUTPUT.PUT_LINE('Pair: ' || i || ',' || j);
+    END LOOP;
+  END LOOP;
+
+  -- Example 15: Exit on first multiple of 6
+  FOR i IN 1..20 LOOP
+    IF MOD(i, 6) = 0 THEN
+      DBMS_OUTPUT.PUT_LINE('Exit on: ' || i);
+      EXIT;
+    END IF;
+  END LOOP;
+
+  -- Example 16: Continue on 5
+  FOR i IN 1..7 LOOP
+    IF i = 5 THEN
+      CONTINUE;
+    END IF;
+    DBMS_OUTPUT.PUT_LINE('Number: ' || i);
+  END LOOP;
+
+  -- Example 17: Exit when i = 10 in REVERSE loop
+  FOR i IN REVERSE 1..15 LOOP
+    IF i = 10 THEN
+      EXIT;
+    END IF;
+    DBMS_OUTPUT.PUT_LINE('Reverse: ' || i);
+  END LOOP;
+
+  -- Example 18: Continue if i is divisible by 2 or 3
+  FOR i IN 1..10 LOOP
+    IF MOD(i, 2) = 0 OR MOD(i, 3) = 0 THEN
+      CONTINUE;
+    END IF;
+    DBMS_OUTPUT.PUT_LINE('Special: ' || i);
+  END LOOP;
+
+  -- Example 19: Exit when square of i > 50
+  FOR i IN 1..10 LOOP
+    IF i * i > 50 THEN
+      EXIT;
+    END IF;
+    DBMS_OUTPUT.PUT_LINE('i squared = ' || i*i);
+  END LOOP;
+
+  -- Example 20: Continue on single digit numbers
+  FOR i IN 1..15 LOOP
+    IF i < 10 THEN
+      CONTINUE;
+    END IF;
+    DBMS_OUTPUT.PUT_LINE('Double-digit: ' || i);
+  END LOOP;
+
+  -- Example 21: Loop from 20 to 25 and exit at 23
+  FOR i IN 20..25 LOOP
+    IF i = 23 THEN
+      EXIT;
+    END IF;
+    DBMS_OUTPUT.PUT_LINE('i = ' || i);
+  END LOOP;
+
+  -- Example 22: Loop from 1 to 6 and skip 4
+  FOR i IN 1..6 LOOP
+    IF i = 4 THEN
+      CONTINUE;
+    END IF;
+    DBMS_OUTPUT.PUT_LINE('i = ' || i);
+  END LOOP;
+
+  -- Example 23: Print only prime numbers (1 to 10)
+  FOR i IN 2..10 LOOP
+    DECLARE
+      is_prime BOOLEAN := TRUE;
+      j NUMBER;
+    BEGIN
+      FOR j IN 2..i-1 LOOP
+        IF MOD(i, j) = 0 THEN
+          is_prime := FALSE;
+          EXIT;
+        END IF;
+      END LOOP;
+      IF is_prime THEN
+        DBMS_OUTPUT.PUT_LINE('Prime: ' || i);
+      END IF;
+    END;
+  END LOOP;
+
+  -- Example 24: Exit after printing first 3 odd numbers
+  i := 0;
+  DECLARE
+    odd_count NUMBER := 0;
+  BEGIN
+    WHILE i < 20 LOOP
+      i := i + 1;
+      IF MOD(i, 2) = 1 THEN
+        DBMS_OUTPUT.PUT_LINE('Odd: ' || i);
+        odd_count := odd_count + 1;
+      END IF;
+      IF odd_count = 3 THEN
+        EXIT;
+      END IF;
+    END LOOP;
+  END;
+
+  -- Example 25: Continue when i mod 5 = 0
+  FOR i IN 1..15 LOOP
+    IF MOD(i, 5) = 0 THEN
+      CONTINUE;
+    END IF;
+    DBMS_OUTPUT.PUT_LINE('Not multiple of 5: ' || i);
+  END LOOP;
+
+  -- Example 26: Exit on first multiple of both 3 and 4
+  FOR i IN 1..20 LOOP
+    IF MOD(i, 3) = 0 AND MOD(i, 4) = 0 THEN
+      DBMS_OUTPUT.PUT_LINE('Multiple of 3 and 4: ' || i);
+      EXIT;
+    END IF;
+  END LOOP;
+
+  -- Example 27: Continue on vowels (simulate ASCII values)
+  FOR i IN 65..70 LOOP  -- A to F
+    IF CHR(i) IN ('A', 'E') THEN
+      CONTINUE;
+    END IF;
+    DBMS_OUTPUT.PUT_LINE('Letter: ' || CHR(i));
+  END LOOP;
+
+  -- Example 28: Exit when sum exceeds 20
+  DECLARE
+    total NUMBER := 0;
+  BEGIN
+    FOR i IN 1..10 LOOP
+      total := total + i;
+      IF total > 20 THEN
+        DBMS_OUTPUT.PUT_LINE('Total exceeded at i=' || i);
+        EXIT;
+      END IF;
+    END LOOP;
+  END;
+
+  -- Example 29: Continue when i squared is even
+  FOR i IN 1..8 LOOP
+    IF MOD(i*i, 2) = 0 THEN
+      CONTINUE;
+    END IF;
+    DBMS_OUTPUT.PUT_LINE('Square is odd: ' || i*i);
+  END LOOP;
+
+  -- Example 30: Exit after 5 iterations using simple LOOP
+  i := 0;
+  LOOP
+    i := i + 1;
+    IF i > 5 THEN
+      EXIT;
+    END IF;
+    DBMS_OUTPUT.PUT_LINE('i = ' || i);
+  END LOOP;
+
+END;
 
 
 
