@@ -138,5 +138,144 @@ Unusual login behavior or data access pattern noticed. Possible breach suspected
 
 ---
 
+
+
+
 🛠️ **Tip:** Always maintain a knowledge base or runbook for recurring incidents to reduce Mean Time to Resolve (MTTR).
+
+
+
+# ⚠️ P2 Issues in Banking Projects – Detailed with Fixes
+
+Below are 10 commonly observed Priority 2 issues in banking production environments, with descriptions and possible resolutions.
+
+---
+
+## 1. 🧾 Delay in Statement Generation
+
+**Issue:**  
+Customer account or credit card statements are delayed due to backend job delays.
+
+**Fix:**  
+- Check batch job logs (e.g., Control-M) for failures or long runtimes.
+- Re-trigger failed statement jobs manually.
+- Optimize long-running queries if needed.
+- Inform customer service of estimated time.
+
+---
+
+## 2. 💰 Miscalculation of Interest for Specific Accounts
+
+**Issue:**  
+Interest for a few accounts was calculated incorrectly due to a logic bug or boundary condition.
+
+**Fix:**  
+- Isolate affected accounts using audit logs or SQL queries.
+- Run a correction script with approval.
+- Fix the interest calculation logic in the backend or stored procedure.
+- Inform QA to validate fix in lower environments.
+
+---
+
+## 3. 🧾 Incorrect Currency Conversion Rate in Transactions
+
+**Issue:**  
+Some foreign exchange transactions are processed using outdated or incorrect conversion rates.
+
+**Fix:**  
+- Refresh currency conversion tables from the master source.
+- Validate cron jobs or API that pulls daily forex rates.
+- Notify impacted customers via alerts if required.
+
+---
+
+## 4. 🔍 Search Function Not Working in CRM/Portal
+
+**Issue:**  
+Search feature in customer service portal returns no results or errors.
+
+**Fix:**  
+- Check indexing status in the backend search engine (Elasticsearch/SOLR).
+- Rebuild search indexes if corrupted.
+- Fix the API or SQL query if query logic changed after deployment.
+
+---
+
+## 5. 📤 Email Notifications Delayed or Not Sent
+
+**Issue:**  
+Transaction success/failure or alert emails not reaching customers promptly.
+
+**Fix:**  
+- Check SMTP service logs or third-party email provider status.
+- Retry failed emails from the queue.
+- Monitor email job health (e.g., Celery workers, cron jobs).
+- Add alerting for email service failure.
+
+---
+
+## 6. 📊 Delay in Dashboard or Report Refresh
+
+**Issue:**  
+Internal dashboards showing stale data due to delayed ETL or caching.
+
+**Fix:**  
+- Check ETL logs for data ingestion errors.
+- Re-run failed ETL or pipeline manually.
+- Clear frontend cache if required.
+
+---
+
+## 7. 🔄 Reconciliation Report Discrepancy
+
+**Issue:**  
+Mismatch found between two financial systems (e.g., CBS vs. GL).
+
+**Fix:**  
+- Identify and extract mismatched entries using SQL.
+- Validate source data and check transformation logic.
+- Coordinate with finance team for reconciliation.
+- Fix root cause in ETL or source feed.
+
+---
+
+## 8. 🗂️ Stuck Transactions in Intermediate State
+
+**Issue:**  
+Some customer transactions remain in `PENDING` or `PROCESSING` state due to queue or service lag.
+
+**Fix:**  
+- Check transaction queue or message broker (Kafka/RabbitMQ).
+- Retry processing manually or move to failure queue.
+- Check logs for service timeout or downstream system errors.
+
+---
+
+## 9. 📥 File Upload Failure in Internet Banking
+
+**Issue:**  
+Corporate customers cannot upload bulk transaction files (NEFT/RTGS) via portal.
+
+**Fix:**  
+- Check upload path permissions and disk space on the server.
+- Validate file size and format.
+- Restart the upload service if stuck.
+- Guide users to retry with corrected file if format is wrong.
+
+---
+
+## 10. 🧾 Cheque Clearance Delay for Specific Branches
+
+**Issue:**  
+Cheque clearance not updating in CBS for select branches due to sync issues.
+
+**Fix:**  
+- Check branch-server sync logs.
+- Retry missed transactions using branch-side logs or manual push.
+- Validate the data push API or script from branch to central CBS.
+
+---
+
+📘 **Note:** P2 issues should be addressed on the same day, and a workaround should be documented for business teams to handle short-term impact.
+
 
