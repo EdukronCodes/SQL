@@ -1,0 +1,36 @@
+data_science_project/
+│
+├── data/                      # Raw & processed data
+│   ├── raw/                   # Unprocessed source data
+│   ├── interim/               # Intermediate processed files
+│   └── processed/             # Final clean datasets
+│
+├── notebooks/                 # Jupyter/Colab notebooks
+│   ├── EDA.ipynb              # Exploratory Data Analysis
+│   ├── FeatureEngineering.ipynb
+│   └── ModelTraining.ipynb
+│
+├── src/                       # Source code
+│   ├── __init__.py
+│   ├── data_preprocessing.py
+│   ├── feature_engineering.py
+│   ├── model_training.py
+│   ├── evaluation.py
+│   └── utils.py
+│
+├── models/                    # Saved trained models
+│   ├── model_v1.pkl
+│   └── model_v2.joblib
+│
+├── reports/                   # Documentation, results
+│   ├── figures/               # Charts & visualizations
+│   └── model_report.pdf
+│
+├── tests/                     # Unit & integration tests
+│   ├── test_data_preprocessing.py
+│   └── test_model_training.py
+│
+├── requirements.txt           # Python dependencies
+├── config.yaml                # Configuration (paths, params)
+├── setup.py                   # For packaging if needed
+└── README.md                  # Project overview

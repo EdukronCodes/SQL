@@ -1,0 +1,46 @@
+data_engineering_project/
+│
+├── dags/                      # Airflow/ADF/Prefect DAGs
+│   └── retail_pipeline_dag.py
+│
+├── pipelines/                 # ETL/ELT jobs
+│   ├── ingest/
+│   │   ├── ingest_sales_data.py
+│   │   └── ingest_customer_data.py
+│   ├── transform/
+│   │   ├── transform_sales.py
+│   │   └── transform_customers.py
+│   └── load/
+│       ├── load_to_synapse.py
+│       └── load_to_adls.py
+│
+├── notebooks/                 # For debugging / ad-hoc analysis
+│   └── pipeline_validation.ipynb
+│
+├── configs/                   # Config files
+│   ├── pipeline_config.yaml
+│   ├── db_connections.yaml
+│   └── secrets.json           # (usually stored in Key Vault)
+│
+├── scripts/                   # Shell/SQL/Helper scripts
+│   ├── create_tables.sql
+│   └── monitoring.sh
+│
+├── tests/                     # Unit tests for pipelines
+│   ├── test_ingest.py
+│   └── test_transform.py
+│
+├── logs/                      # Pipeline execution logs
+│   └── run_2025_09_04.log
+│
+├── infra/                     # IaC (Terraform/ARM/Bicep)
+│   ├── main.tf
+│   └── variables.tf
+│
+├── docker/                    # Docker setup if used
+│   ├── Dockerfile
+│   └── docker-compose.yaml
+│
+├── requirements.txt           # Python dependencies
+├── README.md                  # Documentation
+└── .gitignore
