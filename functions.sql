@@ -334,3 +334,128 @@ BEGIN
   DBMS_OUTPUT.PUT_LINE('Summary: '||fn_emp_summary(101));
 END;
 /
+================================================================
+
+
+---
+
+## 🧮 A. Basic Functions (1–10)
+
+1️⃣ Create a function to return total AMOUNT_SOLD for a given SALES_ID.  
+➡️ `get_sales_amount(p_sales_id NUMBER) RETURN NUMBER`
+
+2️⃣ Create a function to return total AMOUNT_SOLD for a specific PROD_ID.  
+➡️ `get_total_sales_by_product(p_prod_id NUMBER)`
+
+3️⃣ Create a function to return number of transactions for a given CUST_ID.  
+➡️ `get_transaction_count(p_cust_id NUMBER)`
+
+4️⃣ Create a function to return total QUANTITY_SOLD for a given PROMO_ID.  
+➡️ `get_promo_quantity(p_promo_id NUMBER)`
+
+5️⃣ Create a function to calculate AMOUNT_SOLD per unit (amount / quantity) for a SALES_ID.  
+➡️ `get_amount_per_unit(p_sales_id NUMBER)`
+
+6️⃣ Create a function to check if a sale is 'HIGH VALUE' (>1000) or 'NORMAL'.  
+➡️ `check_sale_value(p_sales_id NUMBER)`
+
+7️⃣ Create a function to return average AMOUNT_SOLD across all sales.  
+➡️ `get_avg_sale_amount()`
+
+8️⃣ Create a function to return maximum AMOUNT_SOLD value.  
+➡️ `get_max_sale_amount()`
+
+9️⃣ Create a function to return the CHANNEL_ID used for a given SALES_ID.  
+➡️ `get_channel_by_sale(p_sales_id NUMBER)`
+
+🔟 Create a function to return total QUANTITY_SOLD for a given CHANNEL_ID.  
+➡️ `get_channel_quantity(p_channel_id NUMBER)`
+
+---
+
+## 📊 B. Aggregation & Analysis (11–20)
+
+11️⃣ Create a function to return total sales amount for a given month (TIME_ID).  
+➡️ `get_monthly_sales(p_time_id DATE)`
+
+12️⃣ Create a function to return average QUANTITY_SOLD for a given product.  
+➡️ `get_avg_quantity_by_product(p_prod_id NUMBER)`
+
+13️⃣ Create a function to return total number of customers who purchased a specific product.  
+➡️ `get_customer_count_by_product(p_prod_id NUMBER)`
+
+14️⃣ Create a function to return the product ID with the highest total sales.  
+➡️ `get_top_product()`
+
+15️⃣ Create a function to return the customer ID who spent the highest amount overall.  
+➡️ `get_top_customer()`
+
+16️⃣ Create a function to return the promo ID that generated the highest total sales.  
+➡️ `get_best_promo()`
+
+17️⃣ Create a function to return total sales made through a specific CHANNEL_ID.  
+➡️ `get_sales_by_channel(p_channel_id NUMBER)`
+
+18️⃣ Create a function to return the percentage of total sales contributed by a given CHANNEL_ID.  
+➡️ `get_channel_sales_percentage(p_channel_id NUMBER)`
+
+19️⃣ Create a function to return the total number of transactions on a given date.  
+➡️ `get_sales_count_by_date(p_time_id DATE)`
+
+20️⃣ Create a function to return average sale amount per transaction for a given customer.  
+➡️ `get_avg_sale_per_customer(p_cust_id NUMBER)`
+
+---
+
+## 🧠 C. Conditional / Logical Functions (21–25)
+
+21️⃣ Create a function to check if a product was ever sold (YES/NO).  
+➡️ `is_product_sold(p_prod_id NUMBER)`
+
+22️⃣ Create a function to check if a customer availed any promotion.  
+➡️ `has_customer_used_promo(p_cust_id NUMBER)`
+
+23️⃣ Create a function to categorize sales value:  
+HIGH (>2000), MEDIUM (1000–2000), LOW (<1000).  
+➡️ `categorize_sale(p_sales_id NUMBER)`
+
+24️⃣ Create a function to return the difference between a product’s sale and the average sale.  
+➡️ `get_sale_diff_from_avg(p_prod_id NUMBER)`
+
+25️⃣ Create a function to return “LOYAL” if customer purchased more than 10 times, else “NEW”.  
+➡️ `get_customer_loyalty(p_cust_id NUMBER)`
+
+---
+
+## ⚙️ D. Date / Time & Ranking Functions (26–30)
+
+26️⃣ Create a function to return total sales made in the last 30 days.  
+➡️ `get_recent_sales_30days()`
+
+27️⃣ Create a function to return total sales for the current year.  
+➡️ `get_current_year_sales()`
+
+28️⃣ Create a function to rank products by their total sales value (1 = highest).  
+➡️ `get_product_rank(p_prod_id NUMBER)`
+
+29️⃣ Create a function to return the first sale date for a given product.  
+➡️ `get_first_sale_date(p_prod_id NUMBER)`
+
+30️⃣ Create a function to return a formatted summary string:  
+“Product <prod_id> sold <quantity> units worth ₹<amount>”  
+➡️ `get_sales_summary(p_sales_id NUMBER)`
+
+---
+
+### ✅ Testing Example
+```sql
+SELECT get_sales_amount(101) FROM dual;
+SELECT get_avg_sale_per_customer(205) FROM dual;
+SELECT get_sales_summary(3001) FROM dual;
+
+
+
+
+
+
+
