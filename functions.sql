@@ -234,3 +234,103 @@ END;
 
 -- 22️⃣ Get Manager ID
 CREATE OR REPLACE FUNCTION fn_manager_id(p_emp_id NUMBER)
+RETURN NUMBER IS
+  v_mid NUMBER;
+BEGIN
+  SELECT manager_id INTO v_mid FROM employees WHERE employee_id=p_emp_id;
+  RETURN v_mid;
+END;
+/
+
+-- 23️⃣ Get Department ID
+CREATE OR REPLACE FUNCTION fn_dept_id(p_emp_id NUMBER)
+RETURN NUMBER IS
+  v_did NUMBER;
+BEGIN
+  SELECT department_id INTO v_did FROM employees WHERE employee_id=p_emp_id;
+  RETURN v_did;
+END;
+/
+
+-- 24️⃣ Get Hire Date in 'DD-MON-YYYY'
+CREATE OR REPLACE FUNCTION fn_hire_date_str(p_emp_id NUMBER)
+RETURN VARCHAR2 IS
+  v_hd VARCHAR2(30);
+BEGIN
+  SELECT TO_CHAR(hire_date,'DD-MON-YYYY') INTO v_hd FROM employees WHERE employee_id=p_emp_id;
+  RETURN v_hd;
+END;
+/
+
+-- 25️⃣ Get Employee Age (approx)
+CREATE OR REPLACE FUNCTION fn_emp_age(p_hire_date DATE)
+RETURN NUMBER IS
+BEGIN
+  RETURN TRUNC(MONTHS_BETWEEN(SYSDATE,p_hire_date)/12);
+END;
+/
+
+-- 26️⃣ Get Employees Count in Dept
+CREATE OR REPLACE FUNCTION fn_emp_count_dept(p_dept_id NUMBER)
+RETURN NUMBER IS
+  v_cnt NUMBER;
+BEGIN
+  SELECT COUNT(*) INTO v_cnt FROM employees WHERE department_id=p_dept_id;
+  RETURN v_cnt;
+END;
+/
+
+-- 27️⃣ Get Last Name in Reverse
+CREATE OR REPLACE FUNCTION fn_reverse_lname(p_emp_id NUMBER)
+RETURN VARCHAR2 IS
+  v_rev VARCHAR2(100);
+BEGIN
+  SELECT REVERSE(last_name) INTO v_rev FROM employees WHERE employee_id=p_emp_id;
+  RETURN v_rev;
+END;
+/
+
+-- 28️⃣ Get Email Domain
+CREATE OR REPLACE FUNCTION fn_email_domain(p_emp_id NUMBER)
+RETURN VARCHAR2 IS
+  v_email VARCHAR2(100);
+BEGIN
+  SELECT email || '@company.com' INTO v_email FROM employees WHERE employee_id=p_emp_id;
+  RETURN v_email;
+END;
+/
+
+-- 29️⃣ Get Hire Quarter
+CREATE OR REPLACE FUNCTION fn_hire_quarter(p_emp_id NUMBER)
+RETURN VARCHAR2 IS
+  v_qtr VARCHAR2(10);
+BEGIN
+  SELECT 'Q' || TO_CHAR(hire_date,'Q') INTO v_qtr FROM employees WHERE employee_id=p_emp_id;
+  RETURN v_qtr;
+END;
+/
+
+-- 30️⃣ Get Formatted Employee Summary
+CREATE OR REPLACE FUNCTION fn_emp_summary(p_emp_id NUMBER)
+RETURN VARCHAR2 IS
+  v_summary VARCHAR2(200);
+BEGIN
+  SELECT first_name || ' ' || last_name || ' (' || job_id || ') earns ' ||
+         TO_CHAR(salary,'$999,999.00') INTO v_summary
+  FROM employees WHERE employee_id=p_emp_id;
+  RETURN v_summary;
+END;
+/
+
+-- ==========================================================
+-- ✅ SAMPLE TEST CALLS
+-- ==========================================================
+BEGIN
+  DBMS_OUTPUT.PUT_LINE('Name: '||fn_get_full_name(101));
+  DBMS_OUTPUT.PUT_LINE('Dept: '||fn_department_name(101));
+  DBMS_OUTPUT.PUT_LINE('Experience: '||fn_experience(101)||' years');
+  DBMS_OUTPUT.PUT_LINE('Bonus: '||fn_bonus(101));
+  DBMS_OUTPUT.PUT_LINE('Manager: '||fn_manager_name(101));
+  DBMS_OUTPUT.PUT_LINE('Summary: '||fn_emp_summary(101));
+END;
+/
