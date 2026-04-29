@@ -1,4 +1,20 @@
 
+-- =========================
+-- 1. DROP TABLES (Oracle Style)
+-- =========================
+BEGIN
+    EXECUTE IMMEDIATE 'DROP TABLE Employees';
+EXCEPTION
+    WHEN OTHERS THEN NULL;
+END;
+/
+
+BEGIN
+    EXECUTE IMMEDIATE 'DROP TABLE Departments';
+EXCEPTION
+    WHEN OTHERS THEN NULL;
+END;
+/
 
 -- =========================
 -- 2. CREATE TABLES
@@ -25,10 +41,10 @@ INSERT INTO Departments VALUES (40, 'Finance');
 
 INSERT INTO Employees VALUES (1, 'Alice', 10);
 INSERT INTO Employees VALUES (2, 'Bob', 20);
-INSERT INTO Employees VALUES (3, 'Carol', 20);       -- multiple employees
+INSERT INTO Employees VALUES (3, 'Carol', 20);
 INSERT INTO Employees VALUES (4, 'David', 30);
 INSERT INTO Employees VALUES (5, 'Eve', NULL);       -- NULL dept_id
-INSERT INTO Employees VALUES (6, 'Frank', 50);       -- no match
+INSERT INTO Employees VALUES (6, 'Frank', 50);       -- no matching dept
 
 COMMIT;
 
@@ -84,7 +100,7 @@ ON A.dept_id = B.dept_id
 AND A.emp_id <> B.emp_id;
 
 -- =========================
--- 10. OLD ORACLE JOIN SYNTAX (for exams)
+-- 10. OLD ORACLE JOIN SYNTAX
 -- =========================
 
 -- LEFT JOIN using (+)
