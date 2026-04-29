@@ -300,3 +300,442 @@ CROSS JOIN employees e;
 - **One-to-many** is the most common real-world relationship (one department, many employees).
 - **NULL foreign keys** are common in staging/incomplete data.
 - Joins behave differently with `NULL`, so practicing with these cases helps avoid production bugs.
+
+---
+
+## 6) 30 Subquery-Based Examples (`ROWNUM`, `ROW_NUMBER`, `RANK`, `DENSE_RANK`, `LEAD`, `LAG`)
+
+### A) `ROWNUM` (Top-N style with subqueries)
+
+### 1. First 3 employees by `emp_id`
+```sql
+SELECT *
+FROM (
+    SELECT e.*
+    FROM employees e
+    ORDER BY e.emp_id
+)
+WHERE ROWNUM <= 3;
+```
+
+### 2. Top 2 highest salaries
+```sql
+SELECT *
+FROM (
+    SELECT e.emp_id, e.emp_name, e.salary
+    FROM employees e
+    WHERE e.salary IS NOT NULL
+    ORDER BY e.salary DESC
+)
+WHERE ROWNUM <= 2;
+```
+
+### 3. Lowest 4 salaries
+```sql
+SELECT *
+FROM (
+    SELECT e.emp_name, e.salary
+    FROM employees e
+    WHERE e.salary IS NOT NULL
+    ORDER BY e.salary
+)
+WHERE ROWNUM <= 4;
+```
+
+### 4. Top 3 recent hires
+```sql
+SELECT *
+FROM (
+    SELECT e.emp_name, e.hire_date
+    FROM employees e
+    ORDER BY e.hire_date DESC
+)
+WHERE ROWNUM <= 3;
+```
+
+### 5. First 2 departments alphabetically
+```sql
+SELECT *
+FROM (
+    SELECT d.dept_id, d.dept_name
+    FROM departments d
+    ORDER BY d.dept_name
+)
+WHERE ROWNUM <= 2;
+```
+
+---
+
+### B) `ROW_NUMBER()` with subqueries
+
+### 6. Row number by salary descending (global)
+```sql
+SELECT *
+FROM (
+    SELECT e.emp_name,
+           e.salary,
+           ROW_NUMBER() OVER (ORDER BY e.salary DESC NULLS LAST) AS rn
+    FROM employees e
+)
+ORDER BY rn;
+```
+
+### 7. Row number per department by salary
+```sql
+SELECT *
+FROM (
+    SELECT d.dept_name,
+           e.emp_name,
+           e.salary,
+           ROW_NUMBER() OVER (
+               PARTITION BY e.dept_id
+               ORDER BY e.salary DESC NULLS LAST
+           ) AS rn
+    FROM employees e
+    LEFT JOIN departments d
+        ON e.dept_id = d.dept_id
+)
+ORDER BY dept_name, rn;
+```
+
+### 8. Top paid employee per department (`rn = 1`)
+```sql
+SELECT *
+FROM (
+    SELECT d.dept_name,
+           e.emp_name,
+           e.salary,
+           ROW_NUMBER() OVER (
+               PARTITION BY e.dept_id
+               ORDER BY e.salary DESC NULLS LAST
+           ) AS rn
+    FROM employees e
+    LEFT JOIN departments d
+        ON e.dept_id = d.dept_id
+)
+WHERE rn = 1;
+```
+
+### 9. Second highest salary overall (`rn = 2`)
+```sql
+SELECT *
+FROM (
+    SELECT e.emp_name,
+           e.salary,
+           ROW_NUMBER() OVER (ORDER BY e.salary DESC NULLS LAST) AS rn
+    FROM employees e
+)
+WHERE rn = 2;
+```
+
+### 10. Employees 3 to 5 by hire date (pagination style)
+```sql
+SELECT *
+FROM (
+    SELECT e.emp_name,
+           e.hire_date,
+           ROW_NUMBER() OVER (ORDER BY e.hire_date) AS rn
+    FROM employees e
+)
+WHERE rn BETWEEN 3 AND 5;
+```
+
+---
+
+### C) `RANK()` with subqueries
+
+### 11. Salary rank overall (ties produce gaps)
+```sql
+SELECT *
+FROM (
+    SELECT e.emp_name,
+           e.salary,
+           RANK() OVER (ORDER BY e.salary DESC NULLS LAST) AS sal_rank
+    FROM employees e
+)
+ORDER BY sal_rank;
+```
+
+### 12. Salary rank within each department
+```sql
+SELECT *
+FROM (
+    SELECT d.dept_name,
+           e.emp_name,
+           e.salary,
+           RANK() OVER (
+               PARTITION BY e.dept_id
+               ORDER BY e.salary DESC NULLS LAST
+           ) AS dept_rank
+    FROM employees e
+    LEFT JOIN departments d
+        ON e.dept_id = d.dept_id
+)
+ORDER BY dept_name, dept_rank;
+```
+
+### 13. Top-ranked earners overall (`rank = 1`)
+```sql
+SELECT *
+FROM (
+    SELECT e.emp_name,
+           e.salary,
+           RANK() OVER (ORDER BY e.salary DESC NULLS LAST) AS sal_rank
+    FROM employees e
+)
+WHERE sal_rank = 1;
+```
+
+### 14. Top 2 ranks per department
+```sql
+SELECT *
+FROM (
+    SELECT d.dept_name,
+           e.emp_name,
+           e.salary,
+           RANK() OVER (
+               PARTITION BY e.dept_id
+               ORDER BY e.salary DESC NULLS LAST
+           ) AS dept_rank
+    FROM employees e
+    LEFT JOIN departments d
+        ON e.dept_id = d.dept_id
+)
+WHERE dept_rank <= 2
+ORDER BY dept_name, dept_rank;
+```
+
+### 15. Rank by earliest hire date
+```sql
+SELECT *
+FROM (
+    SELECT e.emp_name,
+           e.hire_date,
+           RANK() OVER (ORDER BY e.hire_date) AS hire_rank
+    FROM employees e
+)
+ORDER BY hire_rank;
+```
+
+---
+
+### D) `DENSE_RANK()` with subqueries
+
+### 16. Dense salary rank overall (no gaps)
+```sql
+SELECT *
+FROM (
+    SELECT e.emp_name,
+           e.salary,
+           DENSE_RANK() OVER (ORDER BY e.salary DESC NULLS LAST) AS dense_sal_rank
+    FROM employees e
+)
+ORDER BY dense_sal_rank;
+```
+
+### 17. Dense rank per department by salary
+```sql
+SELECT *
+FROM (
+    SELECT d.dept_name,
+           e.emp_name,
+           e.salary,
+           DENSE_RANK() OVER (
+               PARTITION BY e.dept_id
+               ORDER BY e.salary DESC NULLS LAST
+           ) AS dense_dept_rank
+    FROM employees e
+    LEFT JOIN departments d
+        ON e.dept_id = d.dept_id
+)
+ORDER BY dept_name, dense_dept_rank;
+```
+
+### 18. Get second dense salary band overall
+```sql
+SELECT *
+FROM (
+    SELECT e.emp_name,
+           e.salary,
+           DENSE_RANK() OVER (ORDER BY e.salary DESC NULLS LAST) AS dense_sal_rank
+    FROM employees e
+)
+WHERE dense_sal_rank = 2;
+```
+
+### 19. Top 2 dense salary bands per department
+```sql
+SELECT *
+FROM (
+    SELECT d.dept_name,
+           e.emp_name,
+           e.salary,
+           DENSE_RANK() OVER (
+               PARTITION BY e.dept_id
+               ORDER BY e.salary DESC NULLS LAST
+           ) AS dense_dept_rank
+    FROM employees e
+    LEFT JOIN departments d
+        ON e.dept_id = d.dept_id
+)
+WHERE dense_dept_rank <= 2
+ORDER BY dept_name, dense_dept_rank;
+```
+
+### 20. Dense rank by latest hire date
+```sql
+SELECT *
+FROM (
+    SELECT e.emp_name,
+           e.hire_date,
+           DENSE_RANK() OVER (ORDER BY e.hire_date DESC) AS dense_hire_rank
+    FROM employees e
+)
+ORDER BY dense_hire_rank;
+```
+
+---
+
+### E) `LEAD()` with subqueries
+
+### 21. Next employee salary in global salary order
+```sql
+SELECT *
+FROM (
+    SELECT e.emp_name,
+           e.salary,
+           LEAD(e.salary) OVER (ORDER BY e.salary DESC NULLS LAST) AS next_salary
+    FROM employees e
+)
+ORDER BY salary DESC NULLS LAST;
+```
+
+### 22. Next hire date per department
+```sql
+SELECT *
+FROM (
+    SELECT d.dept_name,
+           e.emp_name,
+           e.hire_date,
+           LEAD(e.hire_date) OVER (
+               PARTITION BY e.dept_id
+               ORDER BY e.hire_date
+           ) AS next_hire_date
+    FROM employees e
+    LEFT JOIN departments d
+        ON e.dept_id = d.dept_id
+)
+ORDER BY dept_name, hire_date;
+```
+
+### 23. Gap to next salary (descending)
+```sql
+SELECT *
+FROM (
+    SELECT e.emp_name,
+           e.salary,
+           LEAD(e.salary) OVER (ORDER BY e.salary DESC NULLS LAST) AS next_salary,
+           e.salary - LEAD(e.salary) OVER (ORDER BY e.salary DESC NULLS LAST) AS salary_gap
+    FROM employees e
+    WHERE e.salary IS NOT NULL
+)
+ORDER BY salary DESC;
+```
+
+### 24. Next employee name by `emp_id`
+```sql
+SELECT *
+FROM (
+    SELECT e.emp_id,
+           e.emp_name,
+           LEAD(e.emp_name) OVER (ORDER BY e.emp_id) AS next_emp_name
+    FROM employees e
+)
+ORDER BY emp_id;
+```
+
+### 25. Show only rows where next salary is NULL (last in order)
+```sql
+SELECT *
+FROM (
+    SELECT e.emp_name,
+           e.salary,
+           LEAD(e.salary) OVER (ORDER BY e.salary DESC NULLS LAST) AS next_salary
+    FROM employees e
+    WHERE e.salary IS NOT NULL
+)
+WHERE next_salary IS NULL;
+```
+
+---
+
+### F) `LAG()` with subqueries
+
+### 26. Previous employee salary in global salary order
+```sql
+SELECT *
+FROM (
+    SELECT e.emp_name,
+           e.salary,
+           LAG(e.salary) OVER (ORDER BY e.salary DESC NULLS LAST) AS prev_salary
+    FROM employees e
+)
+ORDER BY salary DESC NULLS LAST;
+```
+
+### 27. Previous hire date per department
+```sql
+SELECT *
+FROM (
+    SELECT d.dept_name,
+           e.emp_name,
+           e.hire_date,
+           LAG(e.hire_date) OVER (
+               PARTITION BY e.dept_id
+               ORDER BY e.hire_date
+           ) AS prev_hire_date
+    FROM employees e
+    LEFT JOIN departments d
+        ON e.dept_id = d.dept_id
+)
+ORDER BY dept_name, hire_date;
+```
+
+### 28. Salary difference from previous salary
+```sql
+SELECT *
+FROM (
+    SELECT e.emp_name,
+           e.salary,
+           LAG(e.salary) OVER (ORDER BY e.salary DESC NULLS LAST) AS prev_salary,
+           e.salary - LAG(e.salary) OVER (ORDER BY e.salary DESC NULLS LAST) AS diff_prev
+    FROM employees e
+    WHERE e.salary IS NOT NULL
+)
+ORDER BY salary DESC;
+```
+
+### 29. Previous employee name by `emp_id`
+```sql
+SELECT *
+FROM (
+    SELECT e.emp_id,
+           e.emp_name,
+           LAG(e.emp_name) OVER (ORDER BY e.emp_id) AS prev_emp_name
+    FROM employees e
+)
+ORDER BY emp_id;
+```
+
+### 30. Show rows where previous salary is NULL (first in order)
+```sql
+SELECT *
+FROM (
+    SELECT e.emp_name,
+           e.salary,
+           LAG(e.salary) OVER (ORDER BY e.salary DESC NULLS LAST) AS prev_salary
+    FROM employees e
+    WHERE e.salary IS NOT NULL
+)
+WHERE prev_salary IS NULL;
+```
