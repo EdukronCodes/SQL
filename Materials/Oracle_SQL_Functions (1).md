@@ -1076,3 +1076,890 @@ LAST_VALUE(salary) OVER (
     PARTITION BY department_id
     ORDER BY salary DESC
     ROWS BETWEEN UNBOUNDED PRE
+
+
+
+
+# Oracle SQL Window Frames – 30 Examples with Detailed Comments
+
+## Table Used
+
+```sql
+HR.EMPLOYEES
+```
+
+## Window Frame Syntax
+
+```sql
+ROWS BETWEEN <starting_point> AND <ending_point>
+```
+
+### Important Options
+
+```text
+UNBOUNDED PRECEDING
+→ Start from the first row of the window.
+
+n PRECEDING
+→ Go n rows before the current row.
+
+CURRENT ROW
+→ The row currently being processed.
+
+n FOLLOWING
+→ Go n rows after the current row.
+
+UNBOUNDED FOLLOWING
+→ Continue until the last row of the window.
+```
+
+---
+
+# 1. Running Total – First Row to Current Row
+
+```sql
+SELECT
+    employee_id,
+    first_name,
+    salary,
+
+    -- SUM() is used as an analytic function.
+    -- ORDER BY employee_id decides the sequence of employees.
+    -- UNBOUNDED PRECEDING means start from the first row.
+    -- CURRENT ROW means stop at the current employee.
+    -- Therefore, this calculates a cumulative/running salary total.
+    SUM(salary) OVER (
+        ORDER BY employee_id
+        ROWS BETWEEN UNBOUNDED PRECEDING
+        AND CURRENT ROW
+    ) AS running_total
+
+FROM hr.employees
+
+-- Display employees in the same order used for calculation.
+ORDER BY employee_id;
+```
+
+### Logic
+
+```text
+Row 1 → Row 1
+Row 2 → Row 1 + Row 2
+Row 3 → Row 1 + Row 2 + Row 3
+Row 4 → Row 1 + Row 2 + Row 3 + Row 4
+```
+
+---
+
+# 2. Department-Wise Running Total
+
+```sql
+SELECT
+    employee_id,
+    first_name,
+    department_id,
+    salary,
+
+    -- PARTITION BY creates a separate window for each department.
+    -- Running total restarts when department_id changes.
+    -- Employees inside each department are ordered by employee_id.
+    -- Calculation starts from the first employee in the department.
+    -- It ends at the current employee.
+    SUM(salary) OVER (
+        PARTITION BY department_id
+        ORDER BY employee_id
+        ROWS BETWEEN UNBOUNDED PRECEDING
+        AND CURRENT ROW
+    ) AS department_running_total
+
+FROM hr.employees
+
+ORDER BY department_id, employee_id;
+```
+
+### Logic
+
+```text
+Department 10
+
+Employee 1 → Salary 1
+Employee 2 → Salary 1 + Salary 2
+Employee 3 → Salary 1 + Salary 2 + Salary 3
+
+
+Department 20
+
+Employee 1 → Salary 1
+Employee 2 → Salary 1 + Salary 2
+Employee 3 → Salary 1 + Salary 2 + Salary 3
+```
+
+---
+
+# 3. Running Average Salary
+
+```sql
+SELECT
+    employee_id,
+    first_name,
+    salary,
+
+    -- AVG() calculates the average salary.
+    -- Window starts from the first employee.
+    -- Window grows until the current employee.
+    -- Therefore, this gives a running average.
+    AVG(salary) OVER (
+        ORDER BY employee_id
+        ROWS BETWEEN UNBOUNDED PRECEDING
+        AND CURRENT ROW
+    ) AS running_average
+
+FROM hr.employees
+
+ORDER BY employee_id;
+```
+
+### Logic
+
+```text
+Row 1:
+
+Salary1 / 1
+
+Row 2:
+
+(Salary1 + Salary2) / 2
+
+Row 3:
+
+(Salary1 + Salary2 + Salary3) / 3
+```
+
+---
+
+# 4. Maximum Salary Seen So Far
+
+```sql
+SELECT
+    employee_id,
+    first_name,
+    salary,
+
+    -- MAX() finds the highest salary.
+    -- Window starts from the first employee.
+    -- Window ends at the current employee.
+    -- Result shows the highest salary encountered so far.
+    MAX(salary) OVER (
+        ORDER BY employee_id
+        ROWS BETWEEN UNBOUNDED PRECEDING
+        AND CURRENT ROW
+    ) AS maximum_salary_so_far
+
+FROM hr.employees
+
+ORDER BY employee_id;
+```
+
+---
+
+# 5. Minimum Salary Seen So Far
+
+```sql
+SELECT
+    employee_id,
+    first_name,
+    salary,
+
+    -- MIN() finds the smallest salary.
+    -- Start from the first employee.
+    -- Continue until the current employee.
+    -- This gives the minimum salary seen so far.
+    MIN(salary) OVER (
+        ORDER BY employee_id
+        ROWS BETWEEN UNBOUNDED PRECEDING
+        AND CURRENT ROW
+    ) AS minimum_salary_so_far
+
+FROM hr.employees
+
+ORDER BY employee_id;
+```
+
+---
+
+# 6. Running Employee Count
+
+```sql
+SELECT
+    employee_id,
+    first_name,
+    salary,
+
+    -- COUNT(*) counts rows.
+    -- First employee sees 1 row.
+    -- Second employee sees 2 rows.
+    -- Third employee sees 3 rows.
+    -- Therefore, this creates a running count.
+    COUNT(*) OVER (
+        ORDER BY employee_id
+        ROWS BETWEEN UNBOUNDED PRECEDING
+        AND CURRENT ROW
+    ) AS running_employee_count
+
+FROM hr.employees
+
+ORDER BY employee_id;
+```
+
+### Output Concept
+
+```text
+Employee 1 → 1
+Employee 2 → 2
+Employee 3 → 3
+Employee 4 → 4
+Employee 5 → 5
+```
+
+---
+
+# 7. Complete Company Salary Total
+
+```sql
+SELECT
+    employee_id,
+    first_name,
+    salary,
+
+    -- UNBOUNDED PRECEDING = first row.
+    -- UNBOUNDED FOLLOWING = last row.
+    -- Therefore, the complete table is considered.
+    -- Every employee receives the same company salary total.
+    SUM(salary) OVER (
+        ORDER BY employee_id
+        ROWS BETWEEN UNBOUNDED PRECEDING
+        AND UNBOUNDED FOLLOWING
+    ) AS company_total_salary
+
+FROM hr.employees
+
+ORDER BY employee_id;
+```
+
+### Window
+
+```text
+FIRST ROW
+    ↓
+    ↓
+CURRENT ROW
+    ↓
+    ↓
+LAST ROW
+```
+
+---
+
+# 8. Complete Department Salary Total
+
+```sql
+SELECT
+    employee_id,
+    first_name,
+    department_id,
+    salary,
+
+    -- Create a separate window for every department.
+    -- Start from the first employee of the department.
+    -- Continue until the last employee of the department.
+    -- Therefore, every employee sees the total salary
+    -- of their department.
+    SUM(salary) OVER (
+        PARTITION BY department_id
+        ORDER BY employee_id
+        ROWS BETWEEN UNBOUNDED PRECEDING
+        AND UNBOUNDED FOLLOWING
+    ) AS department_total_salary
+
+FROM hr.employees
+
+ORDER BY department_id, employee_id;
+```
+
+---
+
+# 9. Complete Department Average Salary
+
+```sql
+SELECT
+    employee_id,
+    first_name,
+    department_id,
+    salary,
+
+    -- Employees are separated department-wise.
+    -- Complete department is included in the window.
+    -- AVG() calculates the average salary of that department.
+    AVG(salary) OVER (
+        PARTITION BY department_id
+        ORDER BY employee_id
+        ROWS BETWEEN UNBOUNDED PRECEDING
+        AND UNBOUNDED FOLLOWING
+    ) AS department_average_salary
+
+FROM hr.employees
+
+ORDER BY department_id, employee_id;
+```
+
+---
+
+# 10. Reverse Running Total
+
+```sql
+SELECT
+    employee_id,
+    first_name,
+    salary,
+
+    -- CURRENT ROW means start from the current employee.
+    -- UNBOUNDED FOLLOWING means continue until the last employee.
+    -- This is the opposite of a normal running total.
+    SUM(salary) OVER (
+        ORDER BY employee_id
+        ROWS BETWEEN CURRENT ROW
+        AND UNBOUNDED FOLLOWING
+    ) AS reverse_running_total
+
+FROM hr.employees
+
+ORDER BY employee_id;
+```
+
+### Example
+
+```text
+Salary:
+
+1000
+2000
+3000
+4000
+
+Results:
+
+Row 1 → 1000 + 2000 + 3000 + 4000 = 10000
+Row 2 → 2000 + 3000 + 4000        = 9000
+Row 3 → 3000 + 4000               = 7000
+Row 4 → 4000                      = 4000
+```
+
+---
+
+# 11. Reverse Running Average
+
+```sql
+SELECT
+    employee_id,
+    first_name,
+    salary,
+
+    -- Start from current employee.
+    -- Continue until last employee.
+    -- Calculate average salary of all remaining employees.
+    AVG(salary) OVER (
+        ORDER BY employee_id
+        ROWS BETWEEN CURRENT ROW
+        AND UNBOUNDED FOLLOWING
+    ) AS reverse_running_average
+
+FROM hr.employees
+
+ORDER BY employee_id;
+```
+
+---
+
+# 12. Previous Row + Current Row
+
+```sql
+SELECT
+    employee_id,
+    first_name,
+    salary,
+
+    -- 1 PRECEDING means one row before the current row.
+    -- CURRENT ROW means include the current row.
+    -- Maximum two rows participate.
+    SUM(salary) OVER (
+        ORDER BY employee_id
+        ROWS BETWEEN 1 PRECEDING
+        AND CURRENT ROW
+    ) AS previous_current_total
+
+FROM hr.employees
+
+ORDER BY employee_id;
+```
+
+### Window
+
+```text
+Previous Row
+     +
+Current Row
+```
+
+---
+
+# 13. Previous Two Rows + Current Row
+
+```sql
+SELECT
+    employee_id,
+    first_name,
+    salary,
+
+    -- 2 PRECEDING means start two rows before current row.
+    -- Include:
+    --     2nd previous employee
+    --     1st previous employee
+    --     current employee
+    -- Maximum window size = 3 rows.
+    SUM(salary) OVER (
+        ORDER BY employee_id
+        ROWS BETWEEN 2 PRECEDING
+        AND CURRENT ROW
+    ) AS three_row_total
+
+FROM hr.employees
+
+ORDER BY employee_id;
+```
+
+### Window
+
+```text
+2 PRECEDING
+     ↓
+1 PRECEDING
+     ↓
+CURRENT ROW
+```
+
+---
+
+# 14. Previous Three Rows + Current Row Average
+
+```sql
+SELECT
+    employee_id,
+    first_name,
+    salary,
+
+    -- Start three rows before the current employee.
+    -- End at current employee.
+    -- Maximum four employees participate.
+    AVG(salary) OVER (
+        ORDER BY employee_id
+        ROWS BETWEEN 3 PRECEDING
+        AND CURRENT ROW
+    ) AS four_row_moving_average
+
+FROM hr.employees
+
+ORDER BY employee_id;
+```
+
+---
+
+# 15. Previous + Current + Next Row
+
+```sql
+SELECT
+    employee_id,
+    first_name,
+    salary,
+
+    -- Start one row before current row.
+    -- End one row after current row.
+    -- Maximum three employees participate.
+    SUM(salary) OVER (
+        ORDER BY employee_id
+        ROWS BETWEEN 1 PRECEDING
+        AND 1 FOLLOWING
+    ) AS three_row_moving_total
+
+FROM hr.employees
+
+ORDER BY employee_id;
+```
+
+### Window
+
+```text
+1 PRECEDING
+     ↓
+CURRENT ROW
+     ↓
+1 FOLLOWING
+```
+
+---
+
+# 16. Three-Row Moving Average
+
+```sql
+SELECT
+    employee_id,
+    first_name,
+    salary,
+
+    -- Previous employee
+    -- +
+    -- Current employee
+    -- +
+    -- Next employee
+    --
+    -- AVG() calculates the moving average.
+    AVG(salary) OVER (
+        ORDER BY employee_id
+        ROWS BETWEEN 1 PRECEDING
+        AND 1 FOLLOWING
+    ) AS three_row_moving_average
+
+FROM hr.employees
+
+ORDER BY employee_id;
+```
+
+---
+
+# 17. Two Previous + Current + Two Following
+
+```sql
+SELECT
+    employee_id,
+    first_name,
+    salary,
+
+    -- Start two rows before current employee.
+    -- End two rows after current employee.
+    -- Maximum window size = 5 employees.
+    SUM(salary) OVER (
+        ORDER BY employee_id
+        ROWS BETWEEN 2 PRECEDING
+        AND 2 FOLLOWING
+    ) AS five_row_moving_total
+
+FROM hr.employees
+
+ORDER BY employee_id;
+```
+
+### Window
+
+```text
+2 PRECEDING
+1 PRECEDING
+CURRENT ROW
+1 FOLLOWING
+2 FOLLOWING
+```
+
+---
+
+# 18. Five-Row Moving Average
+
+```sql
+SELECT
+    employee_id,
+    first_name,
+    salary,
+
+    -- Take maximum five employees:
+    -- two previous
+    -- current
+    -- two following
+    --
+    -- Calculate average salary.
+    AVG(salary) OVER (
+        ORDER BY employee_id
+        ROWS BETWEEN 2 PRECEDING
+        AND 2 FOLLOWING
+    ) AS five_row_moving_average
+
+FROM hr.employees
+
+ORDER BY employee_id;
+```
+
+---
+
+# 19. Current Row + Next Row
+
+```sql
+SELECT
+    employee_id,
+    first_name,
+    salary,
+
+    -- Start from current employee.
+    -- Include one employee after current employee.
+    -- Maximum two employees participate.
+    SUM(salary) OVER (
+        ORDER BY employee_id
+        ROWS BETWEEN CURRENT ROW
+        AND 1 FOLLOWING
+    ) AS current_next_total
+
+FROM hr.employees
+
+ORDER BY employee_id;
+```
+
+---
+
+# 20. Current Row + Next Two Rows
+
+```sql
+SELECT
+    employee_id,
+    first_name,
+    salary,
+
+    -- Start at current employee.
+    -- Include next two employees.
+    -- Maximum window size = 3 employees.
+    SUM(salary) OVER (
+        ORDER BY employee_id
+        ROWS BETWEEN CURRENT ROW
+        AND 2 FOLLOWING
+    ) AS current_next_two_total
+
+FROM hr.employees
+
+ORDER BY employee_id;
+```
+
+### Window
+
+```text
+CURRENT ROW
+     ↓
+1 FOLLOWING
+     ↓
+2 FOLLOWING
+```
+
+---
+
+# 21. Current Row + Next Three Rows Average
+
+```sql
+SELECT
+    employee_id,
+    first_name,
+    salary,
+
+    -- Start at current employee.
+    -- Include maximum next three employees.
+    -- Maximum window size = 4 rows.
+    AVG(salary) OVER (
+        ORDER BY employee_id
+        ROWS BETWEEN CURRENT ROW
+        AND 3 FOLLOWING
+    ) AS forward_moving_average
+
+FROM hr.employees
+
+ORDER BY employee_id;
+```
+
+---
+
+# 22. Department-Wise Moving Average
+
+```sql
+SELECT
+    employee_id,
+    first_name,
+    department_id,
+    salary,
+
+    -- PARTITION BY prevents the window
+    -- from crossing department boundaries.
+    --
+    -- For each employee calculate average of:
+    -- previous employee
+    -- current employee
+    -- next employee
+    AVG(salary) OVER (
+        PARTITION BY department_id
+        ORDER BY employee_id
+        ROWS BETWEEN 1 PRECEDING
+        AND 1 FOLLOWING
+    ) AS department_moving_average
+
+FROM hr.employees
+
+ORDER BY department_id, employee_id;
+```
+
+---
+
+# 23. Department Running Salary Based on Hire Date
+
+```sql
+SELECT
+    employee_id,
+    first_name,
+    department_id,
+    hire_date,
+    salary,
+
+    -- Create separate window for every department.
+    -- Arrange employees according to joining date.
+    -- employee_id is used as a tie-breaker.
+    --
+    -- Start from earliest employee.
+    -- Continue until current employee.
+    SUM(salary) OVER (
+        PARTITION BY department_id
+        ORDER BY hire_date, employee_id
+        ROWS BETWEEN UNBOUNDED PRECEDING
+        AND CURRENT ROW
+    ) AS salary_running_total
+
+FROM hr.employees
+
+ORDER BY department_id, hire_date, employee_id;
+```
+
+---
+
+# 24. Highest Salary Seen So Far Based on Hire Date
+
+```sql
+SELECT
+    employee_id,
+    first_name,
+    hire_date,
+    salary,
+
+    -- Arrange employees based on joining date.
+    -- Start from earliest employee.
+    -- Continue until current employee.
+    --
+    -- MAX() returns the highest salary
+    -- encountered up to that employee.
+    MAX(salary) OVER (
+        ORDER BY hire_date, employee_id
+        ROWS BETWEEN UNBOUNDED PRECEDING
+        AND CURRENT ROW
+    ) AS highest_salary_so_far
+
+FROM hr.employees
+
+ORDER BY hire_date, employee_id;
+```
+
+---
+
+# 25. FIRST_VALUE – Highest Salary
+
+```sql
+SELECT
+    employee_id,
+    first_name,
+    salary,
+
+    -- salary DESC places highest salary first.
+    --
+    -- Complete window:
+    -- first row → last row.
+    --
+    -- FIRST_VALUE() therefore returns
+    -- the highest salary.
+    FIRST_VALUE(salary) OVER (
+        ORDER BY salary DESC, employee_id
+        ROWS BETWEEN UNBOUNDED PRECEDING
+        AND UNBOUNDED FOLLOWING
+    ) AS highest_salary
+
+FROM hr.employees
+
+ORDER BY salary DESC, employee_id;
+```
+
+---
+
+# 26. LAST_VALUE – Lowest Salary
+
+```sql
+SELECT
+    employee_id,
+    first_name,
+    salary,
+
+    -- salary DESC places:
+    --
+    -- Highest salary → first
+    -- Lowest salary  → last
+    --
+    -- UNBOUNDED FOLLOWING is important because
+    -- we want Oracle to examine the entire window.
+    --
+    -- LAST_VALUE() therefore returns
+    -- the lowest salary.
+    LAST_VALUE(salary) OVER (
+        ORDER BY salary DESC, employee_id
+        ROWS BETWEEN UNBOUNDED PRECEDING
+        AND UNBOUNDED FOLLOWING
+    ) AS lowest_salary
+
+FROM hr.employees
+
+ORDER BY salary DESC, employee_id;
+```
+
+---
+
+# 27. Highest and Lowest Salary in Each Department
+
+```sql
+SELECT
+    employee_id,
+    first_name,
+    department_id,
+    salary,
+
+    -- =============================================
+    -- FIRST_VALUE
+    -- =============================================
+    -- Divide employees department-wise.
+    -- Sort salary highest to lowest.
+    -- First salary = highest department salary.
+    FIRST_VALUE(salary) OVER (
+        PARTITION BY department_id
+        ORDER BY salary DESC, employee_id
+        ROWS BETWEEN UNBOUNDED PRECEDING
+        AND UNBOUNDED FOLLOWING
+    ) AS highest_department_salary,
+
+
+    -- =============================================
+    -- LAST_VALUE
+    -- =============================================
+    -- Same sorting:
+    --
+    -- Highest → first
+    -- Lowest  → last
+    --
+    -- Therefore LAST_VALUE returns
+    -- lowest department salary.
+    LAST_VALUE(salary) OVER (
+        PARTITION BY department_id
+        ORDER BY salary DESC, employee_id
+        ROWS BETWEEN UNBOUNDED PRECEDING
+        AND UNBOUNDED FOLLOWING
