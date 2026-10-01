@@ -1963,3 +1963,1069 @@ SELECT
         ORDER BY salary DESC, employee_id
         ROWS BETWEEN UNBOUNDED PRECEDING
         AND UNBOUNDED FOLLOWING
+
+
+
+
+# Oracle SQL – Complete Subqueries, Inline Queries and Correlated Subqueries Notes
+
+## Topics Covered
+
+1. What is a Subquery?
+2. Single-Row Subqueries
+3. Multi-Row Subqueries
+4. `IN` / `NOT IN`
+5. `ANY`
+6. `ALL`
+7. Scalar Subqueries
+8. Nested / Multi-Level Subqueries
+9. Inline Views
+10. Correlated Subqueries
+11. `EXISTS`
+12. `NOT EXISTS`
+13. Subqueries in `SELECT`
+14. Subqueries in `WHERE`
+15. Subqueries in `FROM`
+16. Subqueries in `HAVING`
+17. CTE / `WITH` Clause
+18. Common Interview Queries
+
+---
+
+# 1. What is a Subquery?
+
+A **subquery** is a query written inside another SQL query.
+
+Basic syntax:
+
+```sql
+SELECT column_name
+FROM table_name
+WHERE column_name operator
+(
+    SELECT column_name
+    FROM table_name
+);
+```
+
+The inner query normally executes first.
+
+Its result is passed to the outer query.
+
+Example:
+
+```sql
+SELECT
+    employee_id,
+    first_name,
+    salary
+FROM hr.employees
+WHERE salary >
+(
+    SELECT AVG(salary)
+    FROM hr.employees
+);
+```
+
+### Execution
+
+```text
+Step 1:
+
+SELECT AVG(salary)
+FROM hr.employees;
+
+Suppose result = 6500
+
+
+Step 2:
+
+Outer query becomes conceptually:
+
+WHERE salary > 6500
+
+
+Step 3:
+
+Oracle returns employees earning more than 6500.
+```
+
+---
+
+# TYPES OF SUBQUERIES
+
+```text
+SUBQUERIES
+│
+├── Single-Row Subquery
+│
+├── Multi-Row Subquery
+│
+├── Scalar Subquery
+│
+├── Nested Subquery
+│
+├── Inline View
+│
+├── Correlated Subquery
+│
+├── EXISTS Subquery
+│
+├── NOT EXISTS Subquery
+│
+└── CTE / WITH Clause
+```
+
+---
+
+# PART 1 – SINGLE-ROW SUBQUERIES
+
+A single-row subquery returns **one row**.
+
+Common operators:
+
+```text
+=
+>
+<
+>=
+<=
+<>
+```
+
+---
+
+# Example 1 – Employees Earning Above Average Salary
+
+```sql
+SELECT
+    employee_id,
+    first_name,
+    last_name,
+    salary
+FROM hr.employees
+WHERE salary >
+(
+    -- Inner query calculates one value:
+    -- average salary of all employees.
+    SELECT AVG(salary)
+    FROM hr.employees
+)
+ORDER BY salary DESC;
+```
+
+### Logic
+
+```text
+Inner Query
+    ↓
+Calculate average salary
+    ↓
+Outer Query
+    ↓
+Find employees above that average
+```
+
+---
+
+# Example 2 – Employees Earning Below Average Salary
+
+```sql
+SELECT
+    employee_id,
+    first_name,
+    salary
+FROM hr.employees
+WHERE salary <
+(
+    -- Calculate company average salary.
+    SELECT AVG(salary)
+    FROM hr.employees
+)
+ORDER BY salary;
+```
+
+---
+
+# Example 3 – Employee with Maximum Salary
+
+```sql
+SELECT
+    employee_id,
+    first_name,
+    last_name,
+    salary
+FROM hr.employees
+WHERE salary =
+(
+    -- MAX returns one value.
+    SELECT MAX(salary)
+    FROM hr.employees
+);
+```
+
+### Execution
+
+```text
+MAX(salary)
+     ↓
+24000
+     ↓
+WHERE salary = 24000
+```
+
+---
+
+# Example 4 – Employee with Minimum Salary
+
+```sql
+SELECT
+    employee_id,
+    first_name,
+    salary
+FROM hr.employees
+WHERE salary =
+(
+    -- Find minimum salary first.
+    SELECT MIN(salary)
+    FROM hr.employees
+);
+```
+
+---
+
+# Example 5 – Employees Earning More Than Employee 103
+
+```sql
+SELECT
+    employee_id,
+    first_name,
+    salary
+FROM hr.employees
+WHERE salary >
+(
+    -- Find salary of employee 103.
+    SELECT salary
+    FROM hr.employees
+    WHERE employee_id = 103
+)
+ORDER BY salary DESC;
+```
+
+### Logic
+
+```text
+Step 1:
+
+Employee 103 salary
+        ↓
+Suppose = 9000
+
+
+Step 2:
+
+WHERE salary > 9000
+```
+
+---
+
+# Example 6 – Employees Hired After Employee 101
+
+```sql
+SELECT
+    employee_id,
+    first_name,
+    hire_date
+FROM hr.employees
+WHERE hire_date >
+(
+    -- Find employee 101's joining date.
+    SELECT hire_date
+    FROM hr.employees
+    WHERE employee_id = 101
+)
+ORDER BY hire_date;
+```
+
+---
+
+# Example 7 – Employees in the Same Department as Employee 103
+
+```sql
+SELECT
+    employee_id,
+    first_name,
+    department_id
+FROM hr.employees
+WHERE department_id =
+(
+    -- Find department of employee 103.
+    SELECT department_id
+    FROM hr.employees
+    WHERE employee_id = 103
+)
+AND employee_id <> 103;
+```
+
+---
+
+# Example 8 – Employees with Salary Equal to Company Average
+
+```sql
+SELECT
+    employee_id,
+    first_name,
+    salary
+FROM hr.employees
+WHERE salary =
+(
+    SELECT AVG(salary)
+    FROM hr.employees
+);
+```
+
+---
+
+# PART 2 – MULTI-ROW SUBQUERIES
+
+A multi-row subquery returns multiple rows.
+
+Common operators:
+
+```text
+IN
+NOT IN
+ANY
+ALL
+```
+
+Do not normally use:
+
+```sql
+=
+```
+
+when the subquery can return multiple rows.
+
+---
+
+# Example 9 – Employees Working in Sales Departments
+
+```sql
+SELECT
+    employee_id,
+    first_name,
+    department_id
+FROM hr.employees
+WHERE department_id IN
+(
+    -- This subquery may return multiple department IDs.
+    SELECT department_id
+    FROM hr.departments
+    WHERE department_name LIKE '%Sales%'
+);
+```
+
+### Why IN?
+
+Because the inner query could return:
+
+```text
+20
+30
+50
+```
+
+The outer query effectively checks:
+
+```sql
+WHERE department_id IN (20,30,50)
+```
+
+---
+
+# Example 10 – Employees in Departments Located at Location 1700
+
+```sql
+SELECT
+    employee_id,
+    first_name,
+    department_id
+FROM hr.employees
+WHERE department_id IN
+(
+    -- Find all departments at location 1700.
+    SELECT department_id
+    FROM hr.departments
+    WHERE location_id = 1700
+);
+```
+
+---
+
+# Example 11 – Employees Not Working in Location 1700 Departments
+
+```sql
+SELECT
+    employee_id,
+    first_name,
+    department_id
+FROM hr.employees
+WHERE department_id NOT IN
+(
+    SELECT department_id
+    FROM hr.departments
+    WHERE location_id = 1700
+);
+```
+
+### Important
+
+Be careful with `NOT IN` when the subquery can return `NULL`.
+
+`NOT EXISTS` is often safer when nulls are possible.
+
+---
+
+# PART 3 – ANY OPERATOR
+
+`ANY` means the condition must be true for **at least one value** returned by the subquery.
+
+---
+
+# Example 12 – Salary Greater Than ANY Employee in Department 50
+
+```sql
+SELECT
+    employee_id,
+    first_name,
+    salary
+FROM hr.employees
+WHERE salary > ANY
+(
+    -- Return all salaries from department 50.
+    SELECT salary
+    FROM hr.employees
+    WHERE department_id = 50
+)
+ORDER BY salary;
+```
+
+### Meaning
+
+```text
+salary > ANY (3000, 4000, 5000)
+
+Means:
+
+Salary must be greater than at least one value.
+```
+
+For `> ANY`, this is effectively greater than the minimum value in the set.
+
+---
+
+# Example 13 – Salary Less Than ANY Department 50 Salary
+
+```sql
+SELECT
+    employee_id,
+    first_name,
+    salary
+FROM hr.employees
+WHERE salary < ANY
+(
+    SELECT salary
+    FROM hr.employees
+    WHERE department_id = 50
+);
+```
+
+For `< ANY`, the salary only needs to be lower than at least one value.
+
+---
+
+# PART 4 – ALL OPERATOR
+
+`ALL` means the condition must be true for **every value** returned by the subquery.
+
+---
+
+# Example 14 – Salary Greater Than ALL Department 50 Employees
+
+```sql
+SELECT
+    employee_id,
+    first_name,
+    salary
+FROM hr.employees
+WHERE salary > ALL
+(
+    -- Get every salary from department 50.
+    SELECT salary
+    FROM hr.employees
+    WHERE department_id = 50
+)
+ORDER BY salary DESC;
+```
+
+### Meaning
+
+```text
+Department 50 salaries:
+
+3000
+4000
+5000
+6000
+
+salary > ALL (...)
+
+means:
+
+salary > 6000
+```
+
+So:
+
+```text
+> ALL
+≈
+Greater than maximum
+```
+
+---
+
+# Example 15 – Salary Less Than ALL Department 50 Salaries
+
+```sql
+SELECT
+    employee_id,
+    first_name,
+    salary
+FROM hr.employees
+WHERE salary < ALL
+(
+    SELECT salary
+    FROM hr.employees
+    WHERE department_id = 50
+);
+```
+
+Conceptually:
+
+```text
+< ALL
+≈
+Less than minimum
+```
+
+---
+
+# ANY vs ALL
+
+| Operator | Meaning |
+|---|---|
+| `> ANY` | Greater than at least one value |
+| `< ANY` | Less than at least one value |
+| `> ALL` | Greater than every value |
+| `< ALL` | Less than every value |
+
+---
+
+# PART 5 – SCALAR SUBQUERIES
+
+A scalar subquery returns:
+
+```text
+One Row
++
+One Column
+=
+One Value
+```
+
+It can be placed directly inside the `SELECT` list.
+
+---
+
+# Example 16 – Display Company Average Salary
+
+```sql
+SELECT
+    employee_id,
+    first_name,
+    salary,
+
+    -- Scalar subquery returns one value.
+    -- The same average is displayed for every employee.
+    (
+        SELECT AVG(salary)
+        FROM hr.employees
+    ) AS company_average
+
+FROM hr.employees;
+```
+
+---
+
+# Example 17 – Compare Employee Salary with Company Average
+
+```sql
+SELECT
+    employee_id,
+    first_name,
+    salary,
+
+    -- Company-wide average salary.
+    (
+        SELECT AVG(salary)
+        FROM hr.employees
+    ) AS company_average,
+
+    -- Calculate difference between employee salary
+    -- and company average.
+    salary -
+    (
+        SELECT AVG(salary)
+        FROM hr.employees
+    ) AS difference_from_average
+
+FROM hr.employees;
+```
+
+---
+
+# Example 18 – Display Maximum Salary for Every Employee
+
+```sql
+SELECT
+    employee_id,
+    first_name,
+    salary,
+
+    -- Scalar subquery returns company maximum salary.
+    (
+        SELECT MAX(salary)
+        FROM hr.employees
+    ) AS company_max_salary
+
+FROM hr.employees;
+```
+
+---
+
+# PART 6 – SUBQUERY IN HAVING
+
+Subqueries can also be used with grouped results.
+
+---
+
+# Example 19 – Departments Whose Average Salary Is Above Company Average
+
+```sql
+SELECT
+    department_id,
+    AVG(salary) AS department_average
+FROM hr.employees
+WHERE department_id IS NOT NULL
+GROUP BY department_id
+
+HAVING AVG(salary) >
+(
+    -- Calculate company-wide average salary.
+    SELECT AVG(salary)
+    FROM hr.employees
+)
+
+ORDER BY department_average DESC;
+```
+
+### Execution
+
+```text
+Step 1
+Calculate company average
+
+Step 2
+GROUP BY department
+
+Step 3
+Calculate each department average
+
+Step 4
+Compare department average with company average
+```
+
+---
+
+# Example 20 – Departments with More Employees Than Department 90
+
+```sql
+SELECT
+    department_id,
+    COUNT(*) AS employee_count
+FROM hr.employees
+WHERE department_id IS NOT NULL
+GROUP BY department_id
+
+HAVING COUNT(*) >
+(
+    -- Count employees in department 90.
+    SELECT COUNT(*)
+    FROM hr.employees
+    WHERE department_id = 90
+)
+
+ORDER BY employee_count DESC;
+```
+
+---
+
+# PART 7 – INLINE VIEWS / INLINE QUERIES
+
+An **inline view** is a subquery written inside the `FROM` clause.
+
+Syntax:
+
+```sql
+SELECT *
+FROM
+(
+    SELECT ...
+    FROM ...
+) alias;
+```
+
+The result of the inner query behaves like a temporary table for the outer query.
+
+---
+
+# Example 21 – Filter Department Average Using Inline View
+
+```sql
+SELECT
+    department_id,
+    avg_salary
+FROM
+(
+    -- Inner query creates a temporary result.
+    SELECT
+        department_id,
+        AVG(salary) AS avg_salary
+    FROM hr.employees
+    WHERE department_id IS NOT NULL
+    GROUP BY department_id
+)
+WHERE avg_salary > 8000
+ORDER BY avg_salary DESC;
+```
+
+### Flow
+
+```text
+HR.EMPLOYEES
+      ↓
+GROUP BY department
+      ↓
+Calculate AVG(salary)
+      ↓
+Temporary result
+      ↓
+Outer query
+      ↓
+WHERE avg_salary > 8000
+```
+
+---
+
+# Example 22 – Top 5 Highest Paid Employees
+
+```sql
+SELECT
+    employee_id,
+    first_name,
+    salary
+FROM
+(
+    SELECT
+        employee_id,
+        first_name,
+        salary
+    FROM hr.employees
+    ORDER BY salary DESC
+)
+WHERE ROWNUM <= 5;
+```
+
+### Explanation
+
+Inner query:
+
+```sql
+ORDER BY salary DESC
+```
+
+sorts employees first.
+
+Outer query:
+
+```sql
+WHERE ROWNUM <= 5
+```
+
+selects the first five rows.
+
+---
+
+# Example 23 – Top 3 Employees Per Department
+
+```sql
+SELECT
+    employee_id,
+    first_name,
+    department_id,
+    salary
+FROM
+(
+    SELECT
+        employee_id,
+        first_name,
+        department_id,
+        salary,
+
+        -- Rank employees inside every department.
+        ROW_NUMBER() OVER (
+            PARTITION BY department_id
+            ORDER BY salary DESC
+        ) AS rn
+
+    FROM hr.employees
+)
+WHERE rn <= 3
+ORDER BY department_id, salary DESC;
+```
+
+### Important
+
+This pattern is extremely useful for:
+
+```text
+Top N products per category
+Top N employees per department
+Top N customers per region
+Top N transactions per account
+```
+
+---
+
+# Example 24 – Second Highest Salary Using Inline View
+
+```sql
+SELECT
+    employee_id,
+    first_name,
+    salary
+FROM
+(
+    SELECT
+        employee_id,
+        first_name,
+        salary,
+
+        -- DENSE_RANK gives same rank for equal salaries
+        -- without skipping rank numbers.
+        DENSE_RANK() OVER (
+            ORDER BY salary DESC
+        ) AS salary_rank
+
+    FROM hr.employees
+)
+WHERE salary_rank = 2;
+```
+
+---
+
+# Example 25 – Third Highest Salary
+
+```sql
+SELECT
+    employee_id,
+    first_name,
+    salary
+FROM
+(
+    SELECT
+        employee_id,
+        first_name,
+        salary,
+
+        DENSE_RANK() OVER (
+            ORDER BY salary DESC
+        ) AS salary_rank
+
+    FROM hr.employees
+)
+WHERE salary_rank = 3;
+```
+
+---
+
+# PART 8 – CORRELATED SUBQUERIES
+
+A correlated subquery depends on the current row of the outer query.
+
+The inner query refers to a column from the outer query.
+
+Example structure:
+
+```sql
+SELECT ...
+FROM employees e
+WHERE salary >
+(
+    SELECT ...
+    FROM employees e2
+    WHERE e2.department_id = e.department_id
+);
+```
+
+Notice:
+
+```sql
+e2.department_id = e.department_id
+```
+
+The inner query uses:
+
+```text
+e.department_id
+```
+
+from the outer query.
+
+---
+
+# Example 26 – Employees Earning Above Their Department Average
+
+```sql
+SELECT
+    employee_id,
+    first_name,
+    department_id,
+    salary
+FROM hr.employees e
+WHERE salary >
+(
+    -- Calculate average salary for the department
+    -- of the CURRENT employee from outer query.
+    SELECT AVG(e2.salary)
+    FROM hr.employees e2
+    WHERE e2.department_id = e.department_id
+)
+ORDER BY department_id, salary DESC;
+```
+
+### Step-by-Step
+
+Suppose current outer employee is:
+
+```text
+Employee ID    = 120
+Department ID  = 50
+Salary         = 8000
+```
+
+The correlated condition becomes:
+
+```sql
+SELECT AVG(e2.salary)
+FROM hr.employees e2
+WHERE e2.department_id = 50;
+```
+
+Suppose result:
+
+```text
+5000
+```
+
+Oracle checks:
+
+```text
+8000 > 5000
+
+TRUE
+```
+
+Employee is returned.
+
+Then Oracle evaluates the next employee.
+
+---
+
+# Example 27 – Employees Earning Below Their Department Average
+
+```sql
+SELECT
+    employee_id,
+    first_name,
+    department_id,
+    salary
+FROM hr.employees e
+WHERE salary <
+(
+    -- Calculate department average for current employee.
+    SELECT AVG(e2.salary)
+    FROM hr.employees e2
+    WHERE e2.department_id = e.department_id
+)
+ORDER BY department_id, salary;
+```
+
+---
+
+# Example 28 – Highest Paid Employee in Each Department
+
+```sql
+SELECT
+    employee_id,
+    first_name,
+    department_id,
+    salary
+FROM hr.employees e
+WHERE salary =
+(
+    -- Find maximum salary in current employee's department.
+    SELECT MAX(e2.salary)
+    FROM hr.employees e2
+    WHERE e2.department_id = e.department_id
+)
+ORDER BY department_id;
+```
+
+### Important
+
+If two employees have the same maximum salary, both are returned.
+
+---
+
+# Example 29 – Lowest Paid Employee in Each Department
+
+```sql
+SELECT
+    employee_id,
+    first_name,
+    department_id,
+    salary
+FROM hr.employees e
+WHERE salary =
+(
+    SELECT MIN(e2.salary)
+    FROM hr.employees e2
+    WHERE e2.department_id = e.department_id
+)
+ORDER BY department_id;
+```
+
+---
